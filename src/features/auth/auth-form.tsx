@@ -1,0 +1,51 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { ArrowRight, CheckCircle2, Eye, EyeOff, Mail } from "lucide-react";
+import { useState } from "react";
+import { authService } from "@/services/auth";
+
+export function AuthForm({ next = "/dashboard" }: { next?: string }) {
+  const router = useRouter();
+  const [mode, setMode] = useState<"signin" | "register">("signin");
+  const [visible, setVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(form: HTMLFormElement) {
+    setBusy(true); setMessage(""); setSuccess(false);
+    const data = new FormData(form);
+    try {
+      if (mode === "signin") {
+        await authService.signIn(String(data.get("email")), String(data.get("password")));
+        router.replace(next.startsWith("/") ? next : "/dashboard");
+        router.refresh();
+      } else {
+        const result = await authService.signUp(String(data.get("email")), String(data.get("password")), String(data.get("firstName")), String(data.get("middleName")), String(data.get("lastName")));
+        if (result.needsEmailVerification) { setSuccess(true); setMessage("Check your email to verify your account, then sign in."); }
+        else { router.replace("/dashboard"); router.refresh(); }
+      }
+    } catch (reason) { setMessage(reason instanceof Error ? reason.message : "We couldn’t complete that request."); }
+    finally { setBusy(false); }
+  }
+
+  async function sendMagicLink() {
+    if (!email) { setMessage("Enter your email address first."); return; }
+    setBusy(true); setMessage("");
+    try { await authService.sendMagicLink(email); setSuccess(true); setMessage("A secure sign-in link is on its way."); }
+    catch (reason) { setMessage(reason instanceof Error ? reason.message : "Magic link could not be sent."); }
+    finally { setBusy(false); }
+  }
+
+  async function resetPassword() {
+    if (!email) { setMessage("Enter your email address first."); return; }
+    setBusy(true); setMessage("");
+    try { await authService.sendPasswordReset(email); setSuccess(true); setMessage("Check your email for a password reset link."); }
+    catch (reason) { setMessage(reason instanceof Error ? reason.message : "Reset email could not be sent."); }
+    finally { setBusy(false); }
+  }
+
+  return <div className="auth-card glass"><h2>{mode === "signin" ? "Welcome back" : "Create your account"}</h2><p>{mode === "signin" ? "Sign in to open your workspace." : "Start creating with GetLaunch PH for free."}</p><div className="auth-tabs"><button className={`auth-tab ${mode === "signin" ? "active" : ""}`} onClick={() => { setMode("signin"); setMessage(""); }}>Sign in</button><button className={`auth-tab ${mode === "register" ? "active" : ""}`} onClick={() => { setMode("register"); setMessage(""); }}>Register</button></div><form className="form-stack" onSubmit={event => { event.preventDefault(); void submit(event.currentTarget); }}>{mode === "register" && <><div className="field"><label htmlFor="first-name">First name</label><input className="input" id="first-name" name="firstName" autoComplete="given-name" maxLength={60} placeholder="Juan" required/></div><div className="field"><label htmlFor="middle-name">Middle name <span className="fine">(optional)</span></label><input className="input" id="middle-name" name="middleName" autoComplete="additional-name" maxLength={60} placeholder="Santos"/></div><div className="field"><label htmlFor="last-name">Last name</label><input className="input" id="last-name" name="lastName" autoComplete="family-name" maxLength={60} placeholder="Dela Cruz" required/></div></>}<div className="field"><label htmlFor="email">Email address</label><input className="input" id="email" name="email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" required/></div><div className="field"><div className="label-row"><label htmlFor="password">Password</label>{mode === "signin" && <button type="button" className="fine" onClick={() => void resetPassword()}>Forgot password?</button>}</div><div style={{position:"relative"}}><input className="input" id="password" name="password" type={visible ? "text" : "password"} placeholder="At least 8 characters" minLength={8} required/><button type="button" className="icon-button" style={{position:"absolute", right:3, top:3, width:40, height:40, border:0}} onClick={() => setVisible(!visible)} aria-label={visible ? "Hide password" : "Show password"}>{visible ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></div>{message && <div className={`notice ${success ? "auth-success" : ""}`} role="status">{success && <CheckCircle2 size={15}/>} {message}</div>}<button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create free account"} {!busy && <ArrowRight size={16}/>}</button></form><div className="divider">or</div><button className="btn btn-secondary" style={{width:"100%"}} disabled={busy} onClick={() => void sendMagicLink()}><Mail size={16}/> Email me a magic link</button><p className="fine" style={{margin:"20px 0 0", textAlign:"center"}}>By continuing, you agree to our Terms and Privacy Policy.</p></div>;
+}

@@ -1,0 +1,16 @@
+import { CircleHelp, LifeBuoy, MessageSquareText } from "lucide-react";
+import { submitSupportTicket } from "@/app/dashboard/support/actions";
+import { requireUser } from "@/services/supabase-server";
+
+const faqs = [
+  ["Can I change a template later?", "You can duplicate a project and choose a different starting point without affecting the original."],
+  ["Is core security included?", "Yes. Authentication, authorization, RLS, and secure payment handling are never paid add-ons."],
+  ["Where are uploaded files stored?", "Configured projects use private Supabase Storage buckets and authorized signed links."],
+];
+
+export default async function SupportPage({ searchParams }: PageProps<"/dashboard/support">) {
+  const params = await searchParams;
+  const { supabase, user } = await requireUser();
+  const { data: tickets, error } = await supabase.from("support_tickets").select("id, subject, status, priority, created_at, updated_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
+  return <div className="workspace-page"><header className="workspace-page-header"><div><p className="workspace-kicker">Support</p><h1>How can we help?</h1><p>Find a quick answer or send a request to the GetLaunch PH team.</p></div></header>{params.submitted && <div className="workspace-message success">Your support request was submitted.</div>}{params.error && <div className="workspace-message error">{String(params.error)}</div>}<div className="settings-layout"><section className="settings-section"><div className="settings-section-title"><CircleHelp size={18}/><div><h2>Frequently asked questions</h2><p>Answers to common workspace questions.</p></div></div><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></section><section className="settings-section"><div className="settings-section-title"><LifeBuoy size={18}/><div><h2>Contact support</h2><p>Requests are saved to your account.</p></div></div><form action={submitSupportTicket} className="settings-form"><div className="field"><label htmlFor="subject">Subject</label><input className="input" id="subject" name="subject" maxLength={120} required/></div><div className="field"><label htmlFor="message">How can we help?</label><textarea className="textarea" id="message" name="message" minLength={15} maxLength={3000} required/></div><button className="btn btn-primary btn-small" type="submit">Submit request</button></form></section></div><section className="workspace-section workspace-section-main"><div className="workspace-section-head"><div><h2>Previous requests</h2><p>Status updates for tickets submitted from this account.</p></div><MessageSquareText size={18}/></div>{error ? <p className="compact-empty">Support history is unavailable.</p> : (tickets?.length ?? 0) === 0 ? <p className="compact-empty">You haven’t submitted any support requests.</p> : <div className="ticket-list">{tickets!.map(ticket => <article key={ticket.id}><div><strong>{ticket.subject}</strong><span>{new Intl.DateTimeFormat("en-PH", { dateStyle: "medium" }).format(new Date(ticket.created_at))}</span></div><span className={`status-pill ${ticket.status}`}>{ticket.status}</span></article>)}</div>}</section></div>;
+}
