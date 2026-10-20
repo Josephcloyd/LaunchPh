@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, Gift, Sparkles } from "lucide-react";
-import { Brand } from "@/components/brand";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { freeBuilders } from "@/lib/free-builders";
 
@@ -43,6 +43,6 @@ export default function FreeBuildersPage() {
         })}
       </div>}
     </main>
-    <footer className="footer"><div className="container footer-grid"><Brand/><div className="footer-links"><Link href="/">Home</Link><Link href="/#products">Products</Link><Link href="/auth">Sign in</Link></div></div></footer>
+    <SiteFooter/>
   </div>;
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Sans, Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -11,6 +11,14 @@ const jakarta = Plus_Jakarta_Sans({
 const dmSans = DM_Sans({
   variable: "--font-dm",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const serif = Instrument_Serif({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -37,7 +45,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${dmSans.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${jakarta.variable} ${dmSans.variable} ${serif.variable}`}>
       <body>{children}</body>
     </html>
   );

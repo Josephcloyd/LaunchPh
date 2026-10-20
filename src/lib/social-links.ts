@@ -21,3 +21,6 @@ export function isSocialProfileUrl(platform: SocialPlatform, value: string) {
     return false;
   }
 }
+
+/** GetLaunch PH's own Facebook page. */
+export const GETLAUNCH_FACEBOOK_URL = "https://www.facebook.com/GetLaunchPH";

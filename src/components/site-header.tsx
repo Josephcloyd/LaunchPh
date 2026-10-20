@@ -12,7 +12,8 @@ const links = [
   ["Templates", "/templates"],
   ["Products", "/#products"],
   ["Free Builders", "/free-builders"],
-  ["About", "/#about"],
+  ["How it works", "/#how-it-works"],
+  ["FAQs", "/#faqs"],
 ];
 
 export function SiteHeader() {
