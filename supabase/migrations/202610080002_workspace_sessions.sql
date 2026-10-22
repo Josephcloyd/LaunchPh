@@ -47,27 +47,34 @@ alter table public.subscriptions enable row level security;
 alter table public.project_add_ons enable row level security;
 alter table public.security_events enable row level security;
 
+drop policy if exists "preferences owner access" on public.user_preferences;
 create policy "preferences owner access" on public.user_preferences
   for all using (user_id = auth.uid() or public.is_admin())
   with check (user_id = auth.uid() or public.is_admin());
 
+drop policy if exists "activity owner read" on public.activity_logs;
 create policy "activity owner read" on public.activity_logs
   for select using (user_id = auth.uid() or public.is_admin());
+drop policy if exists "activity owner insert" on public.activity_logs;
 create policy "activity owner insert" on public.activity_logs
   for insert with check (user_id = auth.uid() or public.is_admin());
 
+drop policy if exists "notifications owner access" on public.notifications;
 create policy "notifications owner access" on public.notifications
   for all using (user_id = auth.uid() or public.is_admin())
   with check (user_id = auth.uid() or public.is_admin());
 
+drop policy if exists "subscriptions owner read" on public.subscriptions;
 create policy "subscriptions owner read" on public.subscriptions
   for select using (user_id = auth.uid() or public.is_admin());
 
+drop policy if exists "project add ons owner read" on public.project_add_ons;
 create policy "project add ons owner read" on public.project_add_ons
   for select using (
     exists(select 1 from public.projects p where p.id = project_id and (p.owner_id = auth.uid() or public.is_admin()))
   );
 
+drop policy if exists "security events owner read" on public.security_events;
 create policy "security events owner read" on public.security_events
   for select using (user_id = auth.uid() or public.is_admin());
 

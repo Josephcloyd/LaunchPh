@@ -32,22 +32,24 @@ Goal: close the holes that would let someone read private data or get paid produ
 
 ### Database access
 
-- [ ] 🔴 **Dev** — Enable Row Level Security on `products`, `pricing_plans`, `add_ons`, `domains`, and `contact_submissions`. They are created in `supabase/migrations/202610080001_initial_schema.sql` but never get `enable row level security`. Add a new migration that enables it, then add:
+- [x] 🔴 **Dev** — Enable Row Level Security on `products`, `pricing_plans`, `add_ons`, `domains`, and `contact_submissions`. They are created in `supabase/migrations/202610080001_initial_schema.sql` but never get `enable row level security`. Add a new migration that enables it, then add:
   - public **read-only** policies for `products`, `pricing_plans`, and `add_ons` (prices shown on the site)
   - owner/admin-only policies for `domains` and `contact_submissions` (`contact_submissions` holds visitors' names, emails, and messages)
 
-  Written in `supabase/migrations/202610220001_phase0_security_lockdown.sql` and tested in a local Postgres. Still needs applying to the Supabase project.
-- [ ] 🔴 **Dev** — Block publishing without payment. Today `setProjectPublished` in `src/app/dashboard/actions.ts` refuses to publish weddings and business sites, but the RLS policies `projects owner access` and `published sites owner access` let an owner set `projects.status = 'published'` and `published_sites.is_live = true` directly through the Supabase API. Fix it like this:
+  Done in `supabase/migrations/202610220001_phase0_security_lockdown.sql`. Applied and verified on the development project (2026-10-23).
+- [x] 🔴 **Dev** — Block publishing without payment. Today `setProjectPublished` in `src/app/dashboard/actions.ts` refuses to publish weddings and business sites, but the RLS policies `projects owner access` and `published sites owner access` let an owner set `projects.status = 'published'` and `published_sites.is_live = true` directly through the Supabase API. Fix it like this:
   - Remove owners' ability to change those two columns, using column privileges or a trigger.
   - Publish only through a `security definer` function, or a server-side service-role call, that first confirms a paid order (or an active subscription for business sites).
 
-  Written in the same migration: triggers block owners from publishing paid project types, and `publish_project()` checks the new `order_items.project_id` / `subscriptions.project_id` columns for payment. Checkout (Phase 2) must set those columns when it creates an order or subscription.
-- [ ] 🔴 **Dev** — Open Supabase Dashboard → Advisors → Security and fix every warning it lists on the production project.
+  Written in the same migration: triggers block owners from publishing paid project types, and `publish_project()` checks the new `order_items.project_id` / `subscriptions.project_id` columns for payment. Checkout (Phase 2) must set those columns when it creates an order or subscription. Verified on the development project.
+- [ ] 🔴 **Dev** — Open Supabase Dashboard → Advisors → Security and fix every warning it lists on the production project. On development (2026-10-23) the only remaining warnings are intended: public RPCs (`get_public_*`, `check_referral_code`, `is_admin`, which RLS policies call), signed-in RPCs, and `roles` having no policies. Leaked-password protection is still off (needs the Pro plan).
 - [ ] 🔴 **Dev** — Two-account isolation test. With accounts A and B, confirm B cannot read or change A's:
   - profiles, projects, revisions, wedding events, and guests
   - RSVPs, orders, support tickets, notifications, and referral codes
 
   Test both through the app and directly against the Supabase REST API using B's session.
+
+  REST API: passed on development (2026-10-23), 56 checks covering reads, updates, deletes, planted rows, self-promotion to admin, fake paid orders, and publishing. Through the app: not yet done.
 - [x] `roles` has RLS with no policies, so only the `is_admin()` function can read it.
 - [x] Public invitation, business-site, and RSVP data is served through `security definer` functions that are `grant`ed only to what they need.
 
@@ -101,6 +103,9 @@ Goal: a separate, backed-up production environment where sign-up and password re
   10. `202610190002_debut_digital_souvenirs.sql`
   11. `202610220001_phase0_security_lockdown.sql`
   12. `202610220002_function_grants_and_policy_repair.sql`
+  13. `202610230001_account_deletion_foreign_keys.sql`
+
+  The development database was found (2026-10-23) to be missing 5 of these, so after applying them to production, compare its tables and functions against the list above before going further.
 - [ ] 🔴 **Dev + Owner** — Set up custom SMTP in Supabase Auth (e.g. Resend, Postmark, or Amazon SES) with a verified sending domain. Supabase's default sender is limited to a few emails per hour and is meant for testing only.
 - [ ] **Dev** — Brand the Supabase auth email templates (confirm sign-up, magic link, reset password) with GetLaunch PH wording.
 - [ ] 🔴 **Dev** — Add the production domain to Supabase Auth's Site URL and redirect allowlist, then test sign-up confirmation, magic link, and password reset on the real domain.
@@ -232,7 +237,7 @@ Goal: meet legal obligations and give customers confidence.
 - [ ] 🔴 **Owner** — Refund policy for one-time purchases and the monthly plan.
 - [ ] 🔴 **Dev** — Add `/terms`, `/privacy`, and `/refunds` pages. Link them from the footer and from the sign-up text in `src/features/auth/auth-form.tsx`, which already says users agree to them.
 - [ ] **Owner** — Check whether NPC registration or a Data Protection Officer is required for your scale. Get a legal review before public launch.
-- [ ] **Dev** — Account deletion and data export for customers.
+- [ ] **Dev** — Account deletion and data export for customers. Deleting a customer who has orders is blocked by `orders.user_id`, since payment records likely need keeping for tax and refunds. **Owner** to confirm the retention period; then deletion should anonymise the profile and keep the orders.
 - [ ] **Dev** — Cookie notice if analytics is added (the referral cookie is functional, but mention it in the Privacy Policy).
 - [ ] **Owner** — Real contact details on the site: business email, and an address if required.
 
