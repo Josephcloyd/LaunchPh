@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
+import { safeNextPath } from "@/lib/safe-redirect";
 import { authService } from "@/services/auth";
 
 export function AuthForm({ next = "/dashboard" }: { next?: string }) {
@@ -20,7 +21,7 @@ export function AuthForm({ next = "/dashboard" }: { next?: string }) {
     try {
       if (mode === "signin") {
         await authService.signIn(String(data.get("email")), String(data.get("password")));
-        router.replace(next.startsWith("/") ? next : "/dashboard");
+        router.replace(safeNextPath(next));
         router.refresh();
       } else {
         const result = await authService.signUp(String(data.get("email")), String(data.get("password")), String(data.get("firstName")), String(data.get("middleName")), String(data.get("lastName")));
