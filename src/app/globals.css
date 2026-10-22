@@ -1172,15 +1172,15 @@ a.free-builder-card:hover { transform: translateY(-5px); background: rgba(255,25
 .hero-copy h1 .word {
   display: inline-block;
   animation: word-rise 1.2s cubic-bezier(.19, 1, .22, 1) both;
-  animation-delay: calc(var(--i) * 95ms + 120ms);
+  animation-delay: calc(var(--intro-offset, 0s) + var(--i) * 95ms + 120ms);
 }
 @keyframes word-rise { from { transform: translateY(115%) rotate(5deg); } }
 .intro-rise {
   animation: intro-rise 1.1s cubic-bezier(.19, 1, .22, 1) both;
-  animation-delay: calc(var(--i) * 90ms + 220ms);
+  animation-delay: calc(var(--intro-offset, 0s) + var(--i) * 90ms + 220ms);
 }
 @keyframes intro-rise { from { opacity: 0; transform: translateY(20px); } }
-.hero-grid > .showcase { animation: showcase-in 1.8s cubic-bezier(.19, 1, .22, 1) .4s both; }
+.hero-grid > .showcase { animation: showcase-in 1.8s cubic-bezier(.19, 1, .22, 1) calc(var(--intro-offset, 0s) + .4s) both; }
 @keyframes showcase-in { from { opacity: 0; transform: translateY(46px) scale(.95); } }
 
 /* Infinite marquee band */
@@ -1672,6 +1672,18 @@ a.free-builder-card:hover { transform: translateY(-5px); background: rgba(255,25
 @keyframes lm-sheen { 0% { transform: translateX(-30px); } 38%, 100% { transform: translateX(56px); } }
 @keyframes lm-letter { from { opacity: 0; transform: translateY(.5em); filter: blur(5px); } }
 @keyframes lm-shimmer { to { background-position: -160% 0; } }
+
+/* Intro splash on the home page: shown only when the head script adds .intro-splash to <html>.
+   The logo builds (~1.3s), holds, then lifts away at 2.2s; the hero's entrance waits for it
+   via --intro-offset. */
+.intro-splash-overlay { display: none; }
+html.intro-splash { --intro-offset: 2.3s; }
+html.intro-splash .intro-splash-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(60% 48% at 50% 44%, rgba(120, 148, 134, .3), transparent 72%), var(--forest); animation: splash-out .7s cubic-bezier(.65, 0, .35, 1) 2.2s forwards; }
+.intro-splash-overlay .loading-emblem { width: 116px; height: 116px; }
+.intro-splash-overlay .loading-wordmark { font-size: 1.65rem; }
+html.intro-splash .intro-splash-overlay .loading-stage { animation: splash-lift .7s cubic-bezier(.65, 0, .35, 1) 2.2s forwards; }
+@keyframes splash-out { to { opacity: 0; visibility: hidden; } }
+@keyframes splash-lift { to { opacity: 0; transform: translateY(-22px) scale(.94); filter: blur(4px); } }
 
 @media (prefers-reduced-motion: reduce) {
   .loading-screen *, .loading-screen *::before, .loading-screen *::after { animation: none !important; }

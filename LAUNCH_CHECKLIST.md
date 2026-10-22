@@ -77,7 +77,7 @@ Goal: close the holes that would let someone read private data or get paid produ
 - [x] RSVP links use 32 random bytes, and only their SHA-256 hash is stored.
 - [x] `/admin` checks `is_admin()` on the server and returns 404 to non-admins. `/dashboard` and `/admin` require sign-in in `src/proxy.ts`.
 - [x] `.env.local` is git-ignored, and no secrets are committed.
-- [x] No unsafe HTML rendering (`dangerouslySetInnerHTML` is used only for escaped JSON-LD).
+- [x] No unsafe HTML rendering (`dangerouslySetInnerHTML` is used only for escaped JSON-LD and the constant intro-splash script in `src/lib/intro-splash.ts`).
 
 **Exit check:** Supabase Security Advisor shows no errors. Account B can't see or change account A's data, even through the REST API. An unpaid project can't be made public by any route. `/auth?next=//example.com` stays on the site.
 

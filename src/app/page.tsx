@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { HeroShowcase } from "@/components/hero-showcase";
 import { PortfolioShowcase } from "@/components/portfolio-showcase";
 import { HeroBackdrop } from "@/components/hero-backdrop";
+import { IntroSplash } from "@/components/intro-splash";
 import { PageMotion } from "@/components/page-motion";
 import { SocialIcon } from "@/components/social-icons";
 import { GETLAUNCH_FACEBOOK_URL } from "@/lib/social-links";
@@ -59,6 +60,7 @@ const order = (i: number) => ({ "--i": i }) as React.CSSProperties;
 export default function Home() {
   return (
     <div className="site-shell home-shell">
+      <IntroSplash />
       <PageMotion />
       <SiteHeader />
       <main>
