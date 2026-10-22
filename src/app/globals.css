@@ -374,6 +374,8 @@ p { margin: 0; }
 .consultation-form > .btn { width: 100%; }
 .consultation-form > .fine { text-align: center; }
 .inquiry-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+/* Reserve the Turnstile widget's height so the submit button doesn't jump when it loads. */
+.turnstile-field { min-height: 65px; }
 .consultation-success { min-height: 470px; display: grid; place-items: center; align-content: center; text-align: center; }
 .consultation-success > svg { margin-bottom: 13px; color: #c7ddd1; }
 .consultation-success h3 { font-size: 1.35rem; }

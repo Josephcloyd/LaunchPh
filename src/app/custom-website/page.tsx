@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, Check, ExternalLink, Globe2, MessageSquareText, Store, WalletCards } from "lucide-react";
 import { submitWebsiteInquiry } from "@/app/custom-website/actions";
 import { SiteHeader } from "@/components/site-header";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export const metadata: Metadata = {
   title: "Custom Business Websites",
@@ -46,7 +47,7 @@ export default async function CustomWebsitePage({ searchParams }: PageProps<"/cu
               <div className="form-grid"><div className="field"><label htmlFor="preferred-date">Preferred meeting date</label><input className="input" id="preferred-date" name="preferredDate" type="date" required/></div><div className="field"><label htmlFor="preferred-time">Preferred time</label><input className="input" id="preferred-time" name="preferredTime" type="time" required/></div></div>
               <div className="field"><label htmlFor="message">What should the website help you achieve?</label><textarea className="textarea" id="message" name="message" minLength={20} maxLength={2000} placeholder="Tell us about your business, required pages, and important features." required/></div>
               <div className="inquiry-honeypot" aria-hidden="true"><label htmlFor="website">Website</label><input id="website" name="website" tabIndex={-1} autoComplete="off"/></div>
-              <button className="btn btn-primary" type="submit">Request consultation</button>
+              <TurnstileWidget/><button className="btn btn-primary" type="submit">Request consultation</button>
               <p className="fine">This is a meeting request, not an automatic booking. The developer will confirm availability by email.</p>
             </form>
           </>}

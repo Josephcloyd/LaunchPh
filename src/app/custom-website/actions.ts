@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createSupabaseServerClient } from "@/services/supabase-server";
+import { verifyTurnstile, withinRateLimit } from "@/services/abuse-protection";
+import { createSupabaseAdminClient } from "@/services/supabase-admin";
 
 const inquirySchema = z.object({
   firstName: z.string().trim().min(1).max(60),
@@ -38,9 +39,11 @@ export async function submitWebsiteInquiry(formData: FormData) {
   });
 
   if (!parsed.success) redirect("/custom-website?error=Please+complete+all+required+fields");
+  if (!(await verifyTurnstile(formData.get("cf-turnstile-response")))) redirect("/custom-website?error=Please+complete+the+verification+check+and+try+again");
+  if (!(await withinRateLimit("website_inquiry", 5, 3600))) redirect("/custom-website?error=You%E2%80%99ve+sent+several+requests+recently.+Please+try+again+in+an+hour");
 
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("website_inquiries").insert({
+  // Written with the service role: the public can no longer insert inquiries directly.
+  const { error } = await createSupabaseAdminClient().from("website_inquiries").insert({
     first_name: parsed.data.firstName,
     middle_name: parsed.data.middleName || null,
     last_name: parsed.data.lastName,

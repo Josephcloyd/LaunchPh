@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createSupabaseServerClient } from "@/services/supabase-server";
+import { verifyTurnstile, withinRateLimit } from "@/services/abuse-protection";
+import { createSupabaseAdminClient } from "@/services/supabase-admin";
 
 const optionalUrl = z.union([z.literal(""), z.url().max(1000)]);
 const serviceSchema = z.enum(["resume_review", "cover_letter", "linkedin_review", "portfolio_review", "interview_prep"]);
@@ -37,9 +38,11 @@ export async function submitJobApplicationInquiry(formData: FormData) {
     website: String(formData.get("website") ?? ""),
   });
   if (!parsed.success) redirect("/job-application-bundle?error=Please+complete+the+required+fields+and+choose+at+least+one+service");
+  if (!(await verifyTurnstile(formData.get("cf-turnstile-response")))) redirect("/job-application-bundle?error=Please+complete+the+verification+check+and+try+again");
+  if (!(await withinRateLimit("job_application_inquiry", 5, 3600))) redirect("/job-application-bundle?error=You%E2%80%99ve+sent+several+requests+recently.+Please+try+again+in+an+hour");
 
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("job_application_inquiries").insert({
+  // Written with the service role: the public can no longer insert inquiries directly.
+  const { error } = await createSupabaseAdminClient().from("job_application_inquiries").insert({
     first_name: parsed.data.firstName,
     middle_name: parsed.data.middleName || null,
     last_name: parsed.data.lastName,

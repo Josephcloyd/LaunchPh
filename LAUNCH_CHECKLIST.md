@@ -64,16 +64,23 @@ Goal: close the holes that would let someone read private data or get paid produ
   - `Permissions-Policy`
 - [ ] **Dev** — Later: `script-src` still allows `'unsafe-inline'`, because Next.js's inline hydration scripts need it without per-request nonces, and nonces would make every page dynamic. Move to a nonce CSP in `src/proxy.ts` if you want stronger XSS protection at that cost.
 - [ ] **Dev** — When the domain is final and every subdomain serves HTTPS, add `; preload` to HSTS and submit it at hstspreload.org.
-- [ ] 🔴 **Dev** — Rate-limit anonymous submissions:
+- [x] 🔴 **Dev** — Rate-limit anonymous submissions:
   - custom-website inquiry
   - job-application inquiry
   - RSVP submission
   - support tickets
 
   Add Cloudflare Turnstile, or an equivalent, to the two public inquiry forms.
+
+  Done in `202610230002_rate_limits.sql`, `src/services/abuse-protection.ts`, and `src/components/turnstile-widget.tsx`, and verified end to end on development (2026-10-23):
+  - Inquiry forms: Turnstile, then 5 per visitor per hour (visitors identified by an HMAC of their IP). The public insert policies are gone, so inquiries can only be written by the server.
+  - RSVP: 10 responses per guest per hour, enforced inside `submit_wedding_rsvp`.
+  - Support tickets: 5 per user per hour, enforced by a database trigger.
+
+  Local development uses Cloudflare's always-pass test keys; production needs the real widget keys (Phase 8). Add the production domain to the widget's hostnames once it's confirmed (Phase 6).
 - [ ] 🔴 **Dev** — In Supabase Auth settings, review rate limits for sign-up, magic links, and password resets, and turn on CAPTCHA protection.
 - [ ] **Dev** — Turn on leaked-password protection and set a minimum password length in Supabase Auth. The form already asks for 8+ characters.
-- [ ] **Dev** — `SUPABASE_SERVICE_ROLE_KEY` is not used anywhere in `src/`. Don't add it to the production host until code needs it, and never in a `NEXT_PUBLIC_` variable.
+- [ ] **Dev** — `SUPABASE_SERVICE_ROLE_KEY` is now used server-side only, in `src/services/supabase-admin.ts` (inquiry writes and rate limits). Set it on the production host, never in a `NEXT_PUBLIC_` variable, and keep imports of that module out of client components.
 - [ ] **Dev** — Run `npm audit`. Production dependencies are clean today; 5 high-severity advisories are in dev-only tooling. Update them when fixes are available.
 - [x] Every editor and form Server Action validates input with Zod and checks project ownership on the server (`studio/wedding`, `studio/business`, `dashboard`, `support`, `rsvp`, `custom-website`, `job-application-bundle`).
 - [x] RSVP links use 32 random bytes, and only their SHA-256 hash is stored.
@@ -104,6 +111,7 @@ Goal: a separate, backed-up production environment where sign-up and password re
   11. `202610220001_phase0_security_lockdown.sql`
   12. `202610220002_function_grants_and_policy_repair.sql`
   13. `202610230001_account_deletion_foreign_keys.sql`
+  14. `202610230002_rate_limits.sql`
 
   The development database was found (2026-10-23) to be missing 5 of these, so after applying them to production, compare its tables and functions against the list above before going further.
 - [ ] 🔴 **Dev + Owner** — Set up custom SMTP in Supabase Auth (e.g. Resend, Postmark, or Amazon SES) with a verified sending domain. Supabase's default sender is limited to a few emails per hour and is meant for testing only.
@@ -304,6 +312,8 @@ Goal: go live carefully and watch closely.
   - `NEXT_PUBLIC_APP_URL`
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (the real widget keys, not the test keys)
   - `PAYMENT_PROVIDER`
   - `PAYMENT_SECRET_KEY`
   - `PAYMENT_WEBHOOK_SECRET`
