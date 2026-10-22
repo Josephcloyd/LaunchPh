@@ -85,7 +85,6 @@ p { margin: 0; }
 .brand-mark { width: 34px; height: 34px; flex: 0 0 auto; display: block; filter: drop-shadow(0 7px 13px rgba(10, 27, 20, .18)); }
 .brand-mark svg { width: 100%; height: 100%; display: block; }
 .brand-name > span { margin-left: .14em; color: #b5c9bd; font-weight: 700; }
-.loading-brand-mark { margin: 0 auto 15px; }
 .nav-links { display: flex; align-items: center; gap: 7px; }
 .nav-links > a { padding: 9px 13px; color: #dbe2de; font: 600 .84rem/1 var(--font-ui); border-radius: 99px; transition: background .2s, color .2s; }
 .nav-links > a:hover, .nav-links > a[aria-current="page"] { background: rgba(255,255,255,.09); color: #fff; }
@@ -1621,4 +1620,61 @@ a.free-builder-card:hover { transform: translateY(-5px); background: rgba(255,25
 }
 @media (prefers-reduced-motion: reduce) {
   .spin { animation: none; }
+}
+
+/* Loading screen. Every element's resting style is the finished logo; the intro animations
+   run from their "from" frames, so turning animation off shows the complete mark.
+   Intro: hexagon 0–0.85s, launch pad 0.6s, trunk 0.75s, branches 0.98s, nodes 1.05–1.25s.
+   Idle from ~1.5s: orbit, signal pulse (2.4s cycle), sheen (3.6s cycle), halo breathing. */
+.loading-screen { min-height: 100vh; min-height: 100dvh; padding: 24px 16px; display: grid; place-items: center; background: radial-gradient(60% 48% at 50% 44%, rgba(120, 148, 134, .3), transparent 72%), var(--forest); }
+.loading-stage { display: grid; justify-items: center; gap: 30px; text-align: center; }
+.loading-emblem { --lm-ink: var(--brand-mark-ink, #334D44); position: relative; width: 92px; height: 92px; color: var(--cream); }
+.loading-emblem svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 16px 24px rgba(10, 27, 20, .34)); }
+
+.lm-halo { position: absolute; inset: -42%; border-radius: 50%; background: radial-gradient(closest-side, rgba(169, 189, 179, .32), rgba(169, 189, 179, 0)); animation: lm-fade .9s ease-out .3s both, lm-breathe 3.2s ease-in-out 1.5s infinite; }
+.lm-orbit { position: absolute; inset: -19px; border-radius: 50%; animation: lm-fade .7s ease-out .45s both; }
+.lm-orbit::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(248, 247, 243, .1); }
+.lm-orbit-arc { position: absolute; inset: 0; animation: lm-spin 1.9s cubic-bezier(.55, .12, .45, .88) infinite; }
+.lm-orbit-arc::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 58%, rgba(248, 247, 243, .9)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px)); mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px)); }
+.lm-orbit-arc::after { content: ""; position: absolute; top: -2.5px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--cream); box-shadow: 0 0 10px 2px rgba(248, 247, 243, .65); }
+
+.lm-hex-fill { transform-box: fill-box; transform-origin: center; animation: lm-fill .55s cubic-bezier(.22, 1, .36, 1) .4s both; }
+.lm-hex-line { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linejoin: round; stroke-dasharray: 1; opacity: 0; animation: lm-trace .85s cubic-bezier(.65, 0, .35, 1) both; }
+.lm-ink { fill: currentColor; stroke: var(--lm-ink); stroke-width: 3.7; stroke-linecap: round; stroke-linejoin: round; }
+.lm-line { fill: none; stroke-dasharray: 1; animation: lm-draw .38s cubic-bezier(.65, 0, .35, 1) both; }
+.lm-line.lm-trunk { animation-delay: .75s; }
+.lm-line.lm-left, .lm-line.lm-right { animation-delay: .98s; }
+.lm-node { transform-box: fill-box; transform-origin: center; animation: lm-pop .5s cubic-bezier(.34, 1.56, .64, 1) both, lm-ping 2.4s ease-out infinite; }
+.lm-node-1 { animation-delay: 1.05s, 2.65s; }
+.lm-node-2 { animation-delay: 1.15s, 2.91s; }
+.lm-node-3 { animation-delay: 1.25s, 3.05s; }
+.lm-base { fill: var(--lm-ink); stroke: none; transform-box: fill-box; transform-origin: center bottom; animation: lm-rise .42s cubic-bezier(.22, 1, .36, 1) .6s both; }
+.lm-pulse { fill: none; stroke: #e6eee9; stroke-width: 1.5; stroke-dasharray: .16 1.2; stroke-dashoffset: .16; opacity: 0; animation: lm-signal 2.4s cubic-bezier(.45, 0, .25, 1) 1.6s infinite; }
+.lm-pulse.lm-left { animation-delay: 1.86s; }
+.lm-pulse.lm-right { animation-delay: 2s; }
+.lm-sheen { mix-blend-mode: soft-light; transform: translateX(-30px); animation: lm-sheen 3.6s cubic-bezier(.4, 0, .2, 1) 1.5s infinite; }
+
+.loading-wordmark { margin: 0; font: 650 1.4rem/1 var(--font-ui); letter-spacing: -.05em; }
+.lm-letter { display: inline-block; animation: lm-letter .7s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(1.05s + var(--i) * 32ms); }
+.lm-letter-accent { margin-left: .2em; color: #b5c9bd; font-weight: 700; }
+.loading-caption { margin: -16px 0 0; color: transparent; background: linear-gradient(90deg, var(--sage-light) 0 38%, var(--cream) 50%, var(--sage-light) 62% 100%) 0 0 / 260% 100%; -webkit-background-clip: text; background-clip: text; font: 600 .76rem/1 var(--font-ui); letter-spacing: .16em; text-transform: uppercase; animation: lm-fade .6s ease-out 1.4s both, lm-shimmer 2.6s linear 1.4s infinite; }
+
+@keyframes lm-fade { from { opacity: 0; } }
+@keyframes lm-breathe { 50% { transform: scale(1.08); opacity: .7; } }
+@keyframes lm-spin { to { transform: rotate(1turn); } }
+@keyframes lm-trace { 0% { stroke-dashoffset: 1; opacity: 1; } 70% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes lm-fill { from { opacity: 0; transform: scale(.88); } }
+@keyframes lm-draw { from { stroke-dashoffset: 1; opacity: 0; } 12% { opacity: 1; } }
+@keyframes lm-pop { from { opacity: 0; transform: scale(0); } }
+@keyframes lm-ping { 0%, 22%, 100% { transform: scale(1); } 7% { transform: scale(1.16); } }
+@keyframes lm-rise { from { opacity: 0; transform: translateY(5px) scaleY(.4); } }
+@keyframes lm-signal { 0% { stroke-dashoffset: .16; opacity: 0; } 6% { opacity: 1; } 42% { stroke-dashoffset: -1; opacity: 1; } 44%, 100% { stroke-dashoffset: -1; opacity: 0; } }
+@keyframes lm-sheen { 0% { transform: translateX(-30px); } 38%, 100% { transform: translateX(56px); } }
+@keyframes lm-letter { from { opacity: 0; transform: translateY(.5em); filter: blur(5px); } }
+@keyframes lm-shimmer { to { background-position: -160% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen *, .loading-screen *::before, .loading-screen *::after { animation: none !important; }
+  .lm-orbit-arc { display: none; }
+  .loading-caption { color: var(--sage-light); background: none; }
 }

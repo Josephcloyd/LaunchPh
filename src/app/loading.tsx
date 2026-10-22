@@ -1,5 +1,5 @@
-import { LogoMark } from "@/components/brand";
+import { LoadingScreen } from "@/components/loading-screen";
 
 export default function Loading() {
-  return <main className="site-shell" style={{display:"grid", placeItems:"center"}}><div className="glass" style={{padding:28, borderRadius:22, textAlign:"center"}}><LogoMark className="loading-brand-mark"/><p>Preparing your workspace…</p></div></main>;
+  return <LoadingScreen/>;
 }
