@@ -29,6 +29,16 @@ export async function proxy(request: NextRequest) {
     loginUrl.searchParams.set("next", `${path}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
+  if (path.startsWith("/admin") && user) {
+    // The page also calls notFound(), but the root loading.tsx starts streaming first, which
+    // locks in a 200. Checking here gives non-admins a real 404.
+    const { data: isAdmin } = await supabase.rpc("is_admin");
+    if (isAdmin !== true) {
+      const notFoundResponse = NextResponse.rewrite(new URL("/404", request.url), { status: 404 });
+      response.cookies.getAll().forEach(cookie => notFoundResponse.cookies.set(cookie));
+      return notFoundResponse;
+    }
+  }
   if (path === "/auth" && user) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";

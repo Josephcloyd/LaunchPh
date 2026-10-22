@@ -43,13 +43,13 @@ Goal: close the holes that would let someone read private data or get paid produ
 
   Written in the same migration: triggers block owners from publishing paid project types, and `publish_project()` checks the new `order_items.project_id` / `subscriptions.project_id` columns for payment. Checkout (Phase 2) must set those columns when it creates an order or subscription. Verified on the development project.
 - [ ] 🔴 **Dev** — Open Supabase Dashboard → Advisors → Security and fix every warning it lists on the production project. On development (2026-10-23) the only remaining warnings are intended: public RPCs (`get_public_*`, `check_referral_code`, `is_admin`, which RLS policies call), signed-in RPCs, and `roles` having no policies. Leaked-password protection is still off (needs the Pro plan).
-- [ ] 🔴 **Dev** — Two-account isolation test. With accounts A and B, confirm B cannot read or change A's:
+- [x] 🔴 **Dev** — Two-account isolation test. With accounts A and B, confirm B cannot read or change A's:
   - profiles, projects, revisions, wedding events, and guests
   - RSVPs, orders, support tickets, notifications, and referral codes
 
   Test both through the app and directly against the Supabase REST API using B's session.
 
-  REST API: passed on development (2026-10-23), 56 checks covering reads, updates, deletes, planted rows, self-promotion to admin, fake paid orders, and publishing. Through the app: not yet done.
+  REST API: passed on development (2026-10-23), 56 checks covering reads, updates, deletes, planted rows, self-promotion to admin, fake paid orders, and publishing. Through the app: passed (2026-10-23). Signed in as B via the real sign-in page, A's editor URLs redirect to `/dashboard/projects`, and A's guest list, dashboard, support tickets, and draft invitation show none of A's data. Rerun the REST part any time with `npm run test:isolation` (add `-- --env <file>` for production).
 - [x] `roles` has RLS with no policies, so only the `is_admin()` function can read it.
 - [x] Public invitation, business-site, and RSVP data is served through `security definer` functions that are `grant`ed only to what they need.
 
@@ -77,7 +77,7 @@ Goal: close the holes that would let someone read private data or get paid produ
 - [ ] **Dev** — Run `npm audit`. Production dependencies are clean today; 5 high-severity advisories are in dev-only tooling. Update them when fixes are available.
 - [x] Every editor and form Server Action validates input with Zod and checks project ownership on the server (`studio/wedding`, `studio/business`, `dashboard`, `support`, `rsvp`, `custom-website`, `job-application-bundle`).
 - [x] RSVP links use 32 random bytes, and only their SHA-256 hash is stored.
-- [x] `/admin` checks `is_admin()` on the server and returns 404 to non-admins. `/dashboard` and `/admin` require sign-in in `src/proxy.ts`.
+- [x] `/admin` checks `is_admin()` on the server and returns 404 to non-admins. The check also runs in `src/proxy.ts`, because the root `loading.tsx` streams the page before `notFound()` runs, which would lock in a 200. `/dashboard` and `/admin` require sign-in in `src/proxy.ts`.
 - [x] `.env.local` is git-ignored, and no secrets are committed.
 - [x] No unsafe HTML rendering (`dangerouslySetInnerHTML` is used only for escaped JSON-LD and the constant intro-splash script in `src/lib/intro-splash.ts`).
 
@@ -261,6 +261,7 @@ Goal: the public site is accurate and shares well, especially on Facebook.
 - [ ] **Dev** — Remove `/auth` from `src/app/sitemap.ts`; login pages shouldn't be indexed.
 - [ ] **Owner + Dev** — Verify the site in Google Search Console and submit the sitemap.
 - [ ] **Dev** — Private invitations should not appear in Google: add `noindex` on `/wedding/[slug]`, `/rsvp/[token]`, and `/site/[slug]` unless the customer opts in.
+- [ ] **Dev** — Unpublished or unknown `/wedding/[slug]`, `/site/[slug]`, and `/rsvp/[token]` show the not-found page with HTTP 200, because the root `loading.tsx` starts streaming first (Next adds `noindex`). If real 404s matter, for uptime checks or SEO, check in `src/proxy.ts` as `/admin` does.
 - [x] Facebook page linked from the home page, templates page, and footer.
 - [x] `robots.txt`, `sitemap.xml`, and Organization/FAQ structured data exist.
 
