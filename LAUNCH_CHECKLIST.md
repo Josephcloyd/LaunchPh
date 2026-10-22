@@ -78,7 +78,7 @@ Goal: close the holes that would let someone read private data or get paid produ
   - Support tickets: 5 per user per hour, enforced by a database trigger.
 
   Local development uses Cloudflare's always-pass test keys; production needs the real widget keys (Phase 8). Add the production domain to the widget's hostnames once it's confirmed (Phase 6).
-- [ ] 🔴 **Dev** — In Supabase Auth settings, review rate limits for sign-up, magic links, and password resets, and turn on CAPTCHA protection.
+- [ ] 🔴 **Dev** — In Supabase Auth settings, review rate limits for sign-up, magic links, and password resets, and turn on CAPTCHA protection. The sign-in card sends a Turnstile token with sign-in, sign-up, magic link, and password reset (2026-10-23), so CAPTCHA can be enabled: Authentication → Attack Protection → Turnstile, with the test secret on development and the real secret on production.
 - [ ] **Dev** — Turn on leaked-password protection and set a minimum password length in Supabase Auth. The form already asks for 8+ characters.
 - [ ] **Dev** — `SUPABASE_SERVICE_ROLE_KEY` is now used server-side only, in `src/services/supabase-admin.ts` (inquiry writes and rate limits). Set it on the production host, never in a `NEXT_PUBLIC_` variable, and keep imports of that module out of client components.
 - [ ] **Dev** — Run `npm audit`. Production dependencies are clean today; 5 high-severity advisories are in dev-only tooling. Update them when fixes are available.
