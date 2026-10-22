@@ -100,6 +100,7 @@ Goal: a separate, backed-up production environment where sign-up and password re
   9. `202610190001_debut_business_sites_referrals.sql`
   10. `202610190002_debut_digital_souvenirs.sql`
   11. `202610220001_phase0_security_lockdown.sql`
+  12. `202610220002_function_grants_and_policy_repair.sql`
 - [ ] 🔴 **Dev + Owner** — Set up custom SMTP in Supabase Auth (e.g. Resend, Postmark, or Amazon SES) with a verified sending domain. Supabase's default sender is limited to a few emails per hour and is meant for testing only.
 - [ ] **Dev** — Brand the Supabase auth email templates (confirm sign-up, magic link, reset password) with GetLaunch PH wording.
 - [ ] 🔴 **Dev** — Add the production domain to Supabase Auth's Site URL and redirect allowlist, then test sign-up confirmation, magic link, and password reset on the real domain.
