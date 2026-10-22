@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import { INTRO_SPLASH_CLASS, INTRO_SPLASH_DURATION_MS } from "@/lib/intro-splash";
 
 // three.js only downloads on devices that will actually render the scene.
 const HeroScene = dynamic(() => import("@/components/hero-scene"), { ssr: false });
@@ -26,12 +27,14 @@ export function HeroBackdrop() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!canRender3D()) return;
-    queueMicrotask(() => setEnabled(true));
+    // Creating a WebGL context (even the capability probe) and setting up three.js block the
+    // main thread for a few hundred ms, so both wait out the intro splash.
+    const splashing = document.documentElement.classList.contains(INTRO_SPLASH_CLASS);
+    const timer = setTimeout(() => { if (canRender3D()) setEnabled(true); }, splashing ? INTRO_SPLASH_DURATION_MS : 0);
 
     const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting));
     if (rootRef.current) observer.observe(rootRef.current);
-    return () => observer.disconnect();
+    return () => { clearTimeout(timer); observer.disconnect(); };
   }, []);
 
   return (

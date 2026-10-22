@@ -23,6 +23,7 @@ export function LoadingStage({ message }: { message?: string }) {
     <div className="loading-stage">
       <div className="loading-emblem" aria-hidden="true">
         <span className="lm-halo"/>
+        <span className="lm-shadow"/>
         <span className="lm-orbit"><span className="lm-orbit-arc"/></span>
         <svg viewBox="0 0 48 48">
           <defs>

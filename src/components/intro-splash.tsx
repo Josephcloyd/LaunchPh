@@ -1,12 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { LoadingStage } from "@/components/loading-screen";
-import { INTRO_SPLASH_CLASS } from "@/lib/intro-splash";
+import { INTRO_READY_CLASS, INTRO_SPLASH_CLASS } from "@/lib/intro-splash";
 
 // Hidden unless the head script in the root layout added the class; the exit is timed in globals.css.
 export function IntroSplash() {
+  useEffect(() => document.documentElement.classList.add(INTRO_READY_CLASS), []);
   return <div className="intro-splash-overlay" aria-hidden="true"><LoadingStage/></div>;
 }
 
