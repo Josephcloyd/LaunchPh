@@ -26,7 +26,6 @@ export default async function PublishedWeddingPage({ params }: PageProps<"/weddi
   if (!parsed.success) notFound();
   const invitation = parsed.data;
   return <main className="published-wedding-page">
-    <div className="published-wedding-brand"><Brand href="/"/></div>
     <WeddingInvitation {...invitation}/>
     {invitation.eventKind === "debut" && hasEventDateArrived(invitation.date) && <DebutSouvenir
       celebrantName={formatPersonName({ firstName: invitation.celebrantFirstName, middleName: invitation.celebrantMiddleName, lastName: invitation.celebrantLastName })}
@@ -34,7 +33,7 @@ export default async function PublishedWeddingPage({ params }: PageProps<"/weddi
       message={invitation.souvenirMessage}
       photoAlbumUrl={invitation.photoAlbumUrl}
     />}
-    <MadeByCredit/>
+    <footer className="published-wedding-brand"><Brand href="/"/><MadeByCredit/></footer>
   </main>;
 }
 

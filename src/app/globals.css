@@ -545,7 +545,8 @@ html.effects-lite .glass { background: rgba(255, 255, 255, .12); }
 .maps-search-link[aria-disabled="true"] { opacity: .45; pointer-events: none; }
 .error-notice { border-color: rgba(239,183,170,.3); color: #f4cec5; background: rgba(146,75,61,.13); }
 .published-wedding-page { min-height: 100vh; padding: 30px 20px 22px; display: grid; justify-items: center; align-content: start; gap: 24px; background: #e9ebe5; }
-.published-wedding-brand { --brand-mark-ink: #f6f5f0; color: var(--forest-deep); }
+.published-wedding-brand { --brand-mark-ink: #f6f5f0; color: var(--forest-deep); display: grid; justify-items: center; gap: 10px; padding-top: 8px; }
+.published-wedding-brand .brand { transform: scale(.85); }
 .published-wedding-page .wedding-canvas { width: min(760px, 100%); }
 .published-wedding-credit { color: #66766f; font: 600 .75rem/1 var(--font-ui); }
 .resume-canvas { width: 794px; min-height: 1123px; background: white; color: #26332e; box-shadow: 0 20px 50px rgba(10,25,20,.26); display: grid; grid-template-columns: 230px 1fr; transform-origin: top center; }

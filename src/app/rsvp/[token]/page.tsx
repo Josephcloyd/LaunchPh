@@ -31,5 +31,5 @@ export default async function RsvpPage({ params }: PageProps<"/rsvp/[token]">) {
     photoAlbumUrl={content.photoAlbumUrl}
     guestName={row.display_name}
   /> : null;
-  return <main className="rsvp-public-page"><div className="published-wedding-brand"><Brand href="/"/></div><WeddingInvitation {...content}/>{souvenir}<RsvpForm token={token} displayName={row.display_name} partySize={row.party_size} initialAttending={row.current_attending} initialAttendeeCount={row.current_attendee_count} initialNotes={row.current_meal_notes ?? ""}/><MadeByCredit prefix="Private RSVP"/></main>;
+  return <main className="rsvp-public-page"><WeddingInvitation {...content}/>{souvenir}<RsvpForm token={token} displayName={row.display_name} partySize={row.party_size} initialAttending={row.current_attending} initialAttendeeCount={row.current_attendee_count} initialNotes={row.current_meal_notes ?? ""}/><footer className="published-wedding-brand"><Brand href="/"/><MadeByCredit prefix="Private RSVP"/></footer></main>;
 }
