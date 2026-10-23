@@ -607,6 +607,24 @@ p { margin: 0; }
 .checkout-link { padding: 0; border: 0; background: none; text-decoration: underline; cursor: pointer; justify-self: start; }
 .expiry-notice { margin-bottom: 20px; padding: 14px 16px; border: 1px solid rgba(239,214,170,.4); border-radius: 15px; background: rgba(239,214,170,.1); display: flex; align-items: center; gap: 12px; color: #f3e7cf; }
 .expiry-notice p { margin: 0; flex: 1; font-size: .88rem; }
+/* Terms, Privacy, and Refund policy pages (/terms, /privacy, /refunds): a narrow, readable column. */
+.legal-page { max-width: 760px; padding: 64px 0 96px; }
+.legal-header { padding-bottom: 28px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+.legal-header h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
+.legal-header > p:not(.eyebrow):not(.fine) { margin: 14px 0 6px; color: #d1dbd6; font-size: 1.05rem; }
+.legal-nav { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.legal-nav a { padding: 8px 13px; border: 1px solid var(--line); border-radius: 99px; color: #dbe2de; font: 600 .8rem/1 var(--font-ui); }
+.legal-nav a[aria-current="page"] { background: var(--cream); color: var(--forest-deep); border-color: var(--cream); }
+.legal-body { color: #dbe5df; font-size: .98rem; line-height: 1.75; }
+.legal-body h2 { margin: 36px 0 10px; font-size: 1.2rem; color: var(--cream); }
+.legal-body p { margin: 0 0 12px; }
+.legal-body ul { margin: 0 0 12px; padding-left: 22px; display: grid; gap: 6px; list-style: disc; }
+.legal-body li::marker { color: var(--sage-light); } /* Tailwind's reset removes list bullets */
+.legal-body a { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; }
+.legal-body strong { color: var(--cream); }
+.legal-summary { margin-top: 24px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.05); }
+.legal-summary ul { margin-bottom: 0; }
+.auth-card .fine a, .checkout-card .fine a { color: var(--cream); text-decoration: underline; }
 .order-note { display: block; margin-top: 6px; color: #f4cec5; font-size: .76rem; }
 .payment-ref { padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,.08); font-size: .78rem; }
 .adm-review-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }

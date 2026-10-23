@@ -133,6 +133,7 @@ export function ManualCheckout({ productKey, project, accounts, initialReferralC
         </div>
         {message && <div className="notice error-notice" role="alert">{message}</div>}
         <button className="btn btn-primary" type="button" onClick={order} disabled={pending || !method}>{pending ? "Creating your order…" : `Continue · ${peso(price - discount)}`}</button>
+        <p className="fine">By continuing, you agree to our <Link href="/terms">Terms of Service</Link> and <Link href="/refunds">Refund Policy</Link>{isBusiness ? ". Prepaid months aren’t refundable." : ". Invitations can be refunded within 7 days."}</p>
         <Link className="fine" href={product.returnHref}>{product.returnLabel}</Link>
       </div>}
     </section>

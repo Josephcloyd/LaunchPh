@@ -232,19 +232,18 @@ Goal: nothing a customer sends goes unseen.
 
 Goal: meet legal obligations and give customers confidence.
 
-- [ ] 🔴 **Owner** — Terms of Service page.
-- [ ] 🔴 **Owner** — Privacy Policy covering the Data Privacy Act of 2012 (RA 10173):
-  - what personal data is collected (names, emails, phone numbers, guest lists, RSVPs)
-  - why it's collected
-  - how long it's kept
-  - who processes it (Supabase, payment provider, email provider)
-  - how to request deletion
-- [ ] 🔴 **Owner** — Refund policy for one-time purchases and the monthly plan.
-- [ ] 🔴 **Dev** — Add `/terms`, `/privacy`, and `/refunds` pages. Link them from the footer and from the sign-up text in `src/features/auth/auth-form.tsx`, which already says users agree to them.
+- [x] 🔴 `/terms`, `/privacy`, and `/refunds` drafted and published (2026-10-23), linked from the footer, the sign-in card, and checkout. Contact details live in one place, `src/components/legal-page.tsx`. Decisions behind them:
+  - invitations: full refund within 7 days of payment, for any reason (refunding unpublishes the invitation)
+  - business plans: prepaid months aren't refundable; duplicate, extra, or mistaken payments always are
+  - customers must be 18+, or younger with a parent or guardian
+  - contact through the Facebook page and in-app Support (no email yet)
+- [ ] 🔴 **Owner** — Read all three policies and confirm they match how you'll actually run things. They're a plain-language starting point, not legal advice; get them reviewed before public launch.
+- [ ] **Owner** — Add a contact email to `LegalContact` in `src/components/legal-page.tsx` when you have one. The Data Privacy Act expects a reachable contact for privacy requests.
+- [ ] **Dev** — Admin action to refund an order: mark it refunded and unpublish the invitation (today it's done by hand in Supabase).
 - [ ] **Owner** — Check whether NPC registration or a Data Protection Officer is required for your scale. Get a legal review before public launch.
 - [ ] **Dev** — Account deletion and data export for customers. Deleting a customer who has orders is blocked by `orders.user_id`, since payment records likely need keeping for tax and refunds. **Owner** to confirm the retention period; then deletion should anonymise the profile and keep the orders.
-- [ ] **Dev** — Cookie notice if analytics is added (the referral cookie is functional, but mention it in the Privacy Policy).
-- [ ] **Owner** — Real contact details on the site: business email, and an address if required.
+- [ ] **Dev** — Cookie notice if analytics is ever added. Today there's no analytics; the Privacy Policy lists the sign-in cookies, the referral cookie, and the intro animation's session storage.
+- [ ] **Owner** — Real contact details on the site: business email, and an address if required (see the contact email item above).
 
 **Exit check:** Policies are published and linked, and a user can request and complete account deletion.
 
