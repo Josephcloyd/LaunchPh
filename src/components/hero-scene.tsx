@@ -198,9 +198,31 @@ function Fireflies({ count }: { count: number }) {
   );
 }
 
-export default function HeroScene({ active, onReady }: { active: boolean; onReady: () => void }) {
+/** Below this frame rate the scene is too heavy for the device and steps down a quality level. */
+const MIN_SMOOTH_FPS = 40;
+
+/** Measures the frame rate in 2-second windows and reports once if the device can't keep up. */
+function FrameRateGuard({ onSlow }: { onSlow: () => void }) {
+  const stats = useRef({ warmup: 1.5, elapsed: 0, frames: 0, reported: false });
+  useFrame((_, delta) => {
+    const s = stats.current;
+    if (s.reported || delta > 0.5) return; // a long gap means a paused tab, not a slow device
+    if (s.warmup > 0) { s.warmup -= delta; return; } // shaders compiling on the first frames
+    s.elapsed += delta;
+    s.frames += 1;
+    if (s.elapsed < 2) return;
+    if (s.frames / s.elapsed < MIN_SMOOTH_FPS) { s.reported = true; onSlow(); }
+    s.elapsed = 0;
+    s.frames = 0;
+  });
+  return null;
+}
+
+export type SceneQuality = "low" | "high";
+
+export default function HeroScene({ active, quality, onReady, onSlow }: { active: boolean; quality: SceneQuality; onReady: () => void; onSlow: () => void }) {
   const pointer = useRef({ x: 0, y: 0 });
-  const dense = useMemo(() => typeof window !== "undefined" && window.innerWidth >= 900, []);
+  const dense = quality === "high";
 
   useEffect(() => {
     const onMove = (event: PointerEvent) => {
@@ -214,13 +236,14 @@ export default function HeroScene({ active, onReady }: { active: boolean; onRead
   return (
     <Canvas
       frameloop={active ? "always" : "never"}
-      dpr={[1, 1.5]}
+      dpr={dense ? [1, 1.5] : 1}
       camera={{ position: [0, 1.6, 9], fov: 45 }}
       gl={{ antialias: false, alpha: true, powerPreference: "low-power" }}
       onCreated={onReady}
     >
       <SilkWave pointer={pointer} dense={dense} />
-      <Fireflies count={dense ? 70 : 34} />
+      <Fireflies count={dense ? 70 : 24} />
+      <FrameRateGuard key={quality} onSlow={onSlow} />
     </Canvas>
   );
 }

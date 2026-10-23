@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import { useEffect } from "react";
+import { isLiteDevice } from "@/lib/device-performance";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -17,7 +18,8 @@ const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: r
  */
 export function PageMotion() {
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    // Budget devices keep native scrolling: the smooth-scroll loop costs a frame budget they don't have.
+    if (prefersReducedMotion() || isLiteDevice()) return;
 
     const lenis = new Lenis({ lerp: 0.1, anchors: { offset: -24 } });
     lenis.on("scroll", ScrollTrigger.update);

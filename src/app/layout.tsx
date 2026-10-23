@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import { IntroSplashGuard } from "@/components/intro-splash";
+import { EFFECTS_LITE_SCRIPT } from "@/lib/device-performance";
 import { INTRO_SPLASH_SCRIPT } from "@/lib/intro-splash";
 import "./globals.css";
 
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // suppressHydrationWarning: the intro splash script may add a class before hydration.
     <html lang="en" data-scroll-behavior="smooth" className={`${jakarta.variable} ${dmSans.variable} ${serif.variable}`} suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: INTRO_SPLASH_SCRIPT }}/></head>
+      <head><script dangerouslySetInnerHTML={{ __html: EFFECTS_LITE_SCRIPT + INTRO_SPLASH_SCRIPT }}/></head>
       <body>{children}<IntroSplashGuard/></body>
     </html>
   );
