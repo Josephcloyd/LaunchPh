@@ -29,13 +29,15 @@ type TurnstileWidgetProps = {
   onToken?: (token: string | null) => void;
   /** Change this to get a fresh token; each token can be used only once. */
   resetSignal?: number;
+  /** Stay hidden unless Cloudflare needs the visitor to click, so it takes no space for most people. */
+  quiet?: boolean;
 };
 
 // Cloudflare Turnstile bot check. Inside a <form> it adds a hidden `cf-turnstile-response`
 // field, which server actions check with verifyTurnstile(); `onToken` serves callers that
 // send the token themselves, such as Supabase Auth. Rendered explicitly so it also works
 // after client-side navigation.
-export function TurnstileWidget({ onToken, resetSignal = 0 }: TurnstileWidgetProps) {
+export function TurnstileWidget({ onToken, resetSignal = 0, quiet = false }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | undefined>(undefined);
   const onTokenRef = useRef(onToken);
@@ -53,6 +55,7 @@ export function TurnstileWidget({ onToken, resetSignal = 0 }: TurnstileWidgetPro
           sitekey: siteKey,
           theme: "dark",
           size: "flexible",
+          appearance: quiet ? "interaction-only" : "always",
           callback: (token: string) => onTokenRef.current?.(token),
           "expired-callback": () => onTokenRef.current?.(null),
           "error-callback": () => onTokenRef.current?.(null),
@@ -64,12 +67,12 @@ export function TurnstileWidget({ onToken, resetSignal = 0 }: TurnstileWidgetPro
       if (widgetIdRef.current) window.turnstile?.remove(widgetIdRef.current);
       widgetIdRef.current = undefined;
     };
-  }, [siteKey]);
+  }, [siteKey, quiet]);
 
   useEffect(() => {
     if (resetSignal && widgetIdRef.current) window.turnstile?.reset(widgetIdRef.current);
   }, [resetSignal]);
 
   if (!siteKey) return null;
-  return <div ref={containerRef} className="turnstile-field"/>;
+  return <div ref={containerRef} className={quiet ? "turnstile-field quiet" : "turnstile-field"}/>;
 }

@@ -625,6 +625,19 @@ p { margin: 0; }
 .legal-summary { margin-top: 24px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.05); }
 .legal-summary ul { margin-bottom: 0; }
 .auth-card .fine a, .checkout-card .fine a { color: var(--cream); text-decoration: underline; }
+/* Sign-in / register card: compact enough that registering fits without scrolling. */
+.auth-form-wrap { padding-block: 24px; }
+.auth-card { padding: 26px 28px; }
+.auth-card h2 { font-size: 1.55rem; }
+.auth-card > p { margin: 6px 0 16px; }
+.auth-card .auth-tabs { margin-bottom: 16px; }
+.auth-card .form-stack { gap: 12px; }
+.auth-card .field { gap: 5px; }
+.auth-card .input { min-height: 43px; }
+.auth-card .auth-name-grid { gap: 10px; }
+.auth-card .divider { margin: 13px 0; }
+/* A quiet Turnstile is hidden unless a check is needed; cancel the empty row's gap. */
+.turnstile-field.quiet { min-height: 0; margin-bottom: -12px; }
 .order-note { display: block; margin-top: 6px; color: #f4cec5; font-size: .76rem; }
 .payment-ref { padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,.08); font-size: .78rem; }
 .adm-review-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
@@ -709,12 +722,17 @@ p { margin: 0; }
   .metric { padding: 16px; }
   .form-grid, .name-grid { grid-template-columns: 1fr; }
   .auth-page { grid-template-columns: 1fr; }
-  .auth-story { min-height: 270px; padding: 28px 22px; }
-  .auth-story .brand { margin-bottom: 50px; }
-  .auth-quote h1 { font-size: 2.45rem; }
+  /* On phones the intro shrinks to a short header so the form starts near the top. */
+  .auth-story { min-height: 0; padding: 20px 18px 4px; border-right: 0; background: none; }
+  .auth-story .brand { margin-bottom: 14px; }
+  .auth-quote .eyebrow { display: none; }
+  .auth-quote h1 { font-size: 1.7rem; }
+  .auth-quote p { display: none; }
   .auth-story > .fine { display: none; }
-  .auth-form-wrap { padding: 30px 14px; }
-  .auth-card { padding: 25px 20px; }
+  .auth-form-wrap { padding: 12px 14px 24px; }
+  .auth-card { padding: 22px 18px; }
+  .auth-card .auth-name-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .auth-card .auth-name-grid .input { padding: 0 10px; }
   .page-hero { padding-top: 55px; }
   .filter-row { align-items: stretch; flex-direction: column; }
   .studio-layout { display: block; }
