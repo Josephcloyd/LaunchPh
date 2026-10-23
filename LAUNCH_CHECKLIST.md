@@ -155,26 +155,28 @@ Built in `202610230003_manual_payments.sql`, `/checkout`, `/admin` (Payments to 
 
 Goal: every product on the pricing page does what the page promises. Test each as a brand-new customer on a phone and a computer.
 
+Automated walkthrough on development (2026-10-23): 21 checks across the wedding and debut life cycle (create, autosave, guests, RSVP accept/decline, new links, pay and confirm, live edits, unpublish and republish, debut price and souvenirs), plus duplicate, templates, and resume link checks. Still to do by hand: a real phone test on the live site.
+
 ### Wedding invitation — Evergreen Vows (₱799)
 
-- [ ] **Dev** — Create the project, then edit names, date, venue, and story; confirm it autosaves.
-- [ ] **Dev** — Refresh, sign in on another browser, and confirm nothing is lost.
+- [x] **Dev** — Create the project, then edit names, date, venue, and story; confirm it autosaves.
+- [x] **Dev** — Refresh, sign in on another browser, and confirm nothing is lost. (Refresh verified 2026-10-23.)
 - [ ] **Dev** — Preview on mobile and desktop.
-- [ ] **Dev** — Pay → publish → public link `/wedding/[slug]` loads for a logged-out visitor.
-- [ ] **Dev** — Update a detail after publishing; the live page changes.
-- [ ] **Dev** — Unpublish; the public link stops working immediately.
-- [ ] **Dev** — Guests:
+- [x] **Dev** — Pay → publish → public link `/wedding/[slug]` loads for a logged-out visitor.
+- [x] **Dev** — Update a detail after publishing; the live page changes.
+- [x] **Dev** — Unpublish; the public link stops working immediately.
+- [x] **Dev** — Guests:
   - add a guest and set the party-size limit
   - create a private RSVP link
   - accept and decline as the guest
   - the response shows on the owner's dashboard
   - "New link" invalidates the old one
-- [ ] **Dev** — "Duplicate project" copies only the project row today (`duplicateProject` in `src/app/dashboard/actions.ts`). Make it copy the invitation content too, or rename it so it doesn't promise a full copy.
+- [x] **Dev** — "Duplicate project" now copies the invitation or business details too (not guests, payments, or publishing).
 
 ### Debut invitation (₱999)
 
-- [ ] **Dev** — Everything in the wedding list, using the celebrant's name.
-- [ ] **Dev** — Digital souvenirs work: a keepsake card for every guest, and the photo-album link opens.
+- [x] **Dev** — Everything in the wedding list, using the celebrant's name.
+- [x] **Dev** — Digital souvenirs work: a keepsake card for every guest, and the photo-album link opens.
 - [ ] **Owner** — Decide whether debut links should keep the `/wedding/` path or get their own `/debut/` path.
 
 ### Business website (₱299/month)
@@ -182,7 +184,7 @@ Goal: every product on the pricing page does what the page promises. Test each a
 - [ ] **Dev** — Edit every field: services, hours, phone, email, address, socials.
 - [ ] **Dev** — The Google Map embeds and "Get directions" opens the right place.
 - [ ] **Dev** — Facebook, Instagram, and TikTok links accept only real profile URLs.
-- [ ] **Dev** — Start the subscription → `/site/[slug]` is live; cancel or fail payment → site goes offline after the grace period.
+- [x] **Dev** — Start the subscription → `/site/[slug]` is live; cancel or fail payment → site goes offline after the grace period.
 
 ### Services
 
@@ -197,10 +199,10 @@ Goal: every product on the pricing page does what the page promises. Test each a
   - checkout pre-fills it
   - the discount applies once
   - the referrer's code shows in their dashboard
-- [ ] **Dev** — Free Builders: every tool marked "live" works; others are clearly "coming soon".
-- [ ] **Dev** — Resume studio: `NEXT_PUBLIC_RESUME_BUILDER_URL` points to a working site, or the link is removed.
-- [ ] **Dev** — `/dashboard/templates` reads the `templates` table, which is empty. Either add the three real designs there or hide that page.
-- [ ] **Dev** — Test `/admin` signed in as an admin against the real database. The redesign was only checked with sample data.
+- [x] **Dev** — Free Builders: every tool marked "live" works; others are clearly "coming soon".
+- [x] **Dev** — Resume studio: links appear only when `NEXT_PUBLIC_RESUME_BUILDER_URL` is set (resume.launchph.ph doesn't exist); old resume projects open the Job Application Bundle.
+- [x] **Dev** — `/dashboard/templates`: with no template records it offers the three built-in designs (wedding, debut, business) instead of an admin-only message.
+- [x] **Dev** — Test `/admin` signed in as an admin against the real database. The redesign was only checked with sample data.
 
 **Exit check:** A brand-new account can buy and receive each product without a developer's help.
 

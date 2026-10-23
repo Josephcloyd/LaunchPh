@@ -87,6 +87,14 @@ export async function duplicateProject(projectId: string): Promise<MutationResul
   if (!source) return { ok: false, message: "Project not found." };
   const { data, error } = await supabase.from("projects").insert({ owner_id: user.id, name: `${source.name} copy`, project_type: source.project_type, template_id: source.template_id, status: "draft" }).select("id").single();
   if (error || !data) return { ok: false, message: "Project could not be duplicated." };
+  // Copy the saved content too. Guests, payments, and publishing stay with the original.
+  if (source.project_type === "wedding") {
+    const { data: event } = await supabase.from("wedding_events").select("*").eq("project_id", projectId).maybeSingle();
+    if (event) await supabase.from("wedding_events").insert({ ...event, project_id: data.id, updated_at: new Date().toISOString() });
+  } else if (source.project_type === "business") {
+    const { data: profile } = await supabase.from("business_profiles").select("*").eq("project_id", projectId).maybeSingle();
+    if (profile) await supabase.from("business_profiles").insert({ ...profile, project_id: data.id, updated_at: new Date().toISOString() });
+  }
   await recordActivity(user.id, "project_duplicated", `Duplicated “${source.name}”.`, data.id);
   revalidatePath("/dashboard"); revalidatePath("/dashboard/projects");
   return { ok: true, message: "Project duplicated." };

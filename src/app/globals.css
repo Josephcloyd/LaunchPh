@@ -816,6 +816,7 @@ html.effects-lite .glass { background: rgba(255, 255, 255, .12); }
 .action-menu-popover a, .action-menu-popover button { width: 100%; min-height: 35px; padding: 0 9px; border: 0; border-radius: 7px; display: flex; align-items: center; gap: 8px; color: #dce5e0; background: transparent; cursor: pointer; font-size: .76rem; }
 .action-menu-popover a:hover, .action-menu-popover button:hover { background: rgba(255,255,255,.08); }
 .action-menu-popover .danger { color: #f0bbb0; }
+.workspace-empty-actions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .workspace-empty { min-height: 260px; padding: 40px 20px; display: grid; place-items: center; align-content: center; text-align: center; }
 .workspace-empty.compact { min-height: 150px; }
 .workspace-empty h2, .workspace-empty h3 { margin-top: 12px; font-size: 1.15rem; }
