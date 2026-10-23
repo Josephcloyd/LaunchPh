@@ -56,7 +56,7 @@ Connect a Philippine-capable payment provider behind a server-only adapter. Crea
 - `/dashboard` — customer projects and account overview
 - `/admin` — revenue, customers, and template import
 - `/studio/wedding` — live wedding and debut invitation editor (₱799 wedding, ₱999 debut)
-- `/studio/business` — one-page business website editor (₱299/month)
+- `/studio/business` — one-page business website editor (₱499/month)
 - `/site/[slug]` — published business website (indexable)
 - `/r/[code]` — referral share link; remembers the code for checkout (₱50 off a new customer's first purchase)
 - `/job-application-bundle` — guided career-application service intake

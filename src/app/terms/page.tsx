@@ -22,7 +22,7 @@ export default function TermsPage() {
     <h2>4. What we sell</h2>
     <ul>
       <li><strong>Wedding invitation (₱799) and debut invitation (₱999).</strong> A one-time payment for one hosted invitation, including the editor, its web link, and private RSVP links for your guests. It stays online until you unpublish or delete it. If we ever close the service, we’ll give at least 30 days’ notice.</li>
-      <li><strong>Business website.</strong> Prepaid for 1, 3, 6, or 12 months (₱299 per month; 12 months is ₱2,990). There are no automatic charges. Your dashboard shows the date your site is paid until, and we remind you before it ends. If you don’t renew, the site stays online for 7 more days and then goes offline. We keep its content so you can renew later, unless you delete it or your account.</li>
+      <li><strong>Business website.</strong> Prepaid for 1, 3, 6, or 12 months (₱499 per month; 12 months is ₱4,990). There are no automatic charges. Your dashboard shows the date your site is paid until, and we remind you before it ends. If you don’t renew, the site stays online for 7 more days and then goes offline. We keep its content so you can renew later, unless you delete it or your account.</li>
       <li><strong>Job Application Bundle and custom websites.</strong> Arranged one to one after you send an inquiry. We agree on the price and what’s included in writing before you pay.</li>
       <li><strong>Free tools.</strong> Free to use as they are, with no guarantee.</li>
     </ul>

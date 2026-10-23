@@ -25,7 +25,7 @@ export const checkoutProducts = {
     name: "Business Website",
     description: "One-page website for your business",
     lineItem: "Business website",
-    price: 299,
+    price: 499,
     interval: "month",
     details: "Includes your business page with contact details, opening hours, an embedded Google Map, social media links, hosting, HTTPS, and updates any time. Prepaid: choose how many months, and we’ll remind you before it ends.",
     returnHref: "/dashboard/projects",
@@ -48,12 +48,12 @@ export const checkoutProducts = {
 export type CheckoutProductKey = keyof typeof checkoutProducts;
 
 // Prices shown at checkout. Orders are always priced by the database (pricing_plans, seeded in
-// 202610230003_manual_payments.sql), so keep these in sync with it.
+// 202610230003_manual_payments.sql, repriced in 202610230005_business_site_499.sql), so keep these in sync with it.
 export const businessPlans = [
-  { slug: "business-site-1m", months: 1, price: 299, note: null },
-  { slug: "business-site-3m", months: 3, price: 897, note: null },
-  { slug: "business-site-6m", months: 6, price: 1794, note: null },
-  { slug: "business-site-12m", months: 12, price: 2990, note: "2 months free" },
+  { slug: "business-site-1m", months: 1, price: 499, note: null },
+  { slug: "business-site-3m", months: 3, price: 1497, note: null },
+  { slug: "business-site-6m", months: 6, price: 2994, note: null },
+  { slug: "business-site-12m", months: 12, price: 4990, note: "2 months free" },
 ] as const;
 export type BusinessPlanSlug = (typeof businessPlans)[number]["slug"];
 

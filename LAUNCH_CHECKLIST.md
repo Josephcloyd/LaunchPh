@@ -121,7 +121,7 @@ Goal: a separate, backed-up production environment where sign-up and password re
 - [ ] 🔴 **Dev** — Add the production domain to Supabase Auth's Site URL and redirect allowlist, then test sign-up confirmation, magic link, and password reset on the real domain.
 - [ ] **Dev** — Turn on daily backups (and point-in-time recovery if the plan allows), then restore one backup into a throwaway project to prove it works.
 - [ ] **Owner + Dev** — Agree on how someone becomes an admin. Today it's a manual row in `roles`; write down who can add one and record it in `audit_logs`.
-- [ ] **Dev** — Seed `products` and `pricing_plans` with the real prices: ₱799 wedding, ₱999 debut, ₱299/month business site, ₱499 Job Application Bundle.
+- [ ] **Dev** — Seed `products` and `pricing_plans` with the real prices: ₱799 wedding, ₱999 debut, ₱499/month business site, ₱499 Job Application Bundle.
 
 **Exit check:** On production, a new person can register, confirm their email, sign in, reset their password, and sign out, and the emails arrive within a minute.
 
@@ -180,7 +180,7 @@ Automated walkthrough on development (2026-10-23): 21 checks across the wedding 
 - [x] **Dev** — Digital souvenirs work: a keepsake card for every guest, and the photo-album link opens.
 - [ ] **Owner** — Decide whether debut links should keep the `/wedding/` path or get their own `/debut/` path.
 
-### Business website (₱299/month)
+### Business website (₱499/month)
 
 - [ ] **Dev** — Edit every field: services, hours, phone, email, address, socials.
 - [ ] **Dev** — The Google Map embeds and "Get directions" opens the right place.

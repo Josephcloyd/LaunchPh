@@ -35,7 +35,7 @@ export function BusinessStudio({ initialDraft }: { initialDraft: BusinessDraft }
       </div>
       <div className="top-actions">
         <button className="btn btn-secondary btn-small" type="button" onClick={() => document.querySelector(".business-site")?.scrollIntoView({ behavior: "smooth" })}><Eye size={15}/> Preview</button>
-        <Link className="btn btn-primary btn-small" href={`/checkout?product=business-site&project=${draft.projectId}`}><Send size={15}/> Publish · ₱299/month</Link>
+        <Link className="btn btn-primary btn-small" href={`/checkout?product=business-site&project=${draft.projectId}`}><Send size={15}/> Publish · ₱499/month</Link>
       </div>
     </header>
     <div className="studio-body">

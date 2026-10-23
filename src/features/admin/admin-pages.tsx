@@ -129,7 +129,7 @@ export function AdminCustomers({ rows }: { rows: CustomerRow[] }) {
 const builtIn = [
   { key: "wedding", name: "Evergreen Vows", kind: "Wedding invitation", price: "₱799", icon: Heart },
   { key: "debut", name: "Debut invitation", kind: "18th birthday invitation", price: "₱999", icon: Sparkles },
-  { key: "business", name: "Business website", kind: "One-page business site", price: "₱299/month", icon: Store },
+  { key: "business", name: "Business website", kind: "One-page business site", price: "₱499/month", icon: Store },
 ] as const;
 
 export function AdminTemplates({ rows, usage }: { rows: TemplateRow[]; usage: Record<"wedding" | "debut" | "business", number> }) {

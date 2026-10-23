@@ -31,7 +31,7 @@ export default async function CustomWebsitePage({ searchParams }: PageProps<"/cu
           <ul className="custom-feature-list">{features.map(feature => <li key={feature}><span><Check size={15}/></span>{feature}</li>)}</ul>
           <div className="custom-service-note glass"><Globe2 size={20}/><div><strong>Own-domain ready</strong><p>Connect a domain you already own or ask for help choosing one. Registration and third-party service fees are quoted separately.</p></div></div>
           <div className="custom-service-note glass"><BriefcaseBusiness size={20}/><div><strong>Recent work</strong><p>See sites the developer has built: <a href="https://canoy-law.com" target="_blank" rel="noreferrer">Canoy Law <ExternalLink size={11}/></a>, a law office in Cebu, and <a href="https://vanessaandthomas.ch" target="_blank" rel="noreferrer">Thomas &amp; Vanessa <ExternalLink size={11}/></a>, a bilingual wedding site.</p></div></div>
-          <div className="custom-service-note glass"><Store size={20}/><div><strong>Just need a simple page?</strong><p>Our <Link href="/dashboard/projects/new?type=business">₱299/month business website</Link> gives you a one-page site with your map, hours, and social media that you can edit yourself.</p></div></div>
+          <div className="custom-service-note glass"><Store size={20}/><div><strong>Just need a simple page?</strong><p>Our <Link href="/dashboard/projects/new?type=business">₱499/month business website</Link> gives you a one-page site with your map, hours, and social media that you can edit yourself.</p></div></div>
         </section>
 
         <section className="consultation-card glass" aria-labelledby="consultation-title">

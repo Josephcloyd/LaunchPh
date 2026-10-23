@@ -81,7 +81,7 @@ export const templates = [
     id: "business",
     name: "Business Website",
     category: "Small business",
-    price: "₱299",
+    price: "₱499",
     suffix: "/ month",
     description: "A clean one-page site that tells customers what you offer, when you’re open, and how to reach you.",
     features: ["Services, hours, and contact details", "Google Map and directions", "Facebook, Instagram, and TikTok links", "Hosting and HTTPS included"],

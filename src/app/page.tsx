@@ -14,7 +14,7 @@ const products = [
   { name: "Free draft", price: "₱0", detail: "Design and preview before paying", items: ["Wedding, debut, or business site", "Visual editor", "Mobile and desktop preview"], cta: "Create a draft", href: "/dashboard/projects/new" },
   { name: "Wedding Invitation", price: "₱799", suffix: " one-time", detail: "Publish one hosted wedding invitation", items: ["Your invitation link", "Private guest RSVP links", "Publish and update controls", "Core security included"], cta: "Create my invitation", href: "/dashboard/projects/new", featured: true },
   { name: "Debut Invitation", price: "₱999", suffix: " one-time", detail: "Publish one hosted debut invitation", items: ["Your invitation link", "Private guest RSVP links", "Digital souvenirs: keepsake card and photo album", "Core security included"], cta: "Create my debut invitation", href: "/dashboard/projects/new?type=debut" },
-  { name: "Business Website", price: "₱299", suffix: " / month", detail: "A one-page site for your business", items: ["Contact details and opening hours", "Embedded Google Map", "Facebook, Instagram, and TikTok links", "Hosting and HTTPS included"], cta: "Create my business site", href: "/dashboard/projects/new?type=business" },
+  { name: "Business Website", price: "₱499", suffix: " / month", detail: "A one-page site for your business", items: ["Contact details and opening hours", "Embedded Google Map", "Facebook, Instagram, and TikTok links", "Hosting and HTTPS included"], cta: "Create my business site", href: "/dashboard/projects/new?type=business" },
   { name: "Job Application Bundle", price: "₱499", suffix: " one-time", detail: "Focused support for one job application", items: ["Resume review", "Tailored cover letter guidance", "LinkedIn and portfolio feedback", "Interview-preparation notes"], cta: "Request my bundle", href: "/job-application-bundle" },
   { name: "Custom Website", price: "Let’s talk", detail: "Built with a developer for your business", items: ["Free project consultation", "Scope matched to your budget", "Responsive custom design", "Your own domain"], cta: "Request a consultation", href: "/custom-website" },
 ];
@@ -32,7 +32,7 @@ const faqs = [
   { question: "How do I pay?", answer: "All prices are in Philippine pesos. Checkout supports cards, GCash, Maya, and bank transfer." },
   { question: "How do guests RSVP to my wedding or debut?", answer: "Every guest gets a private RSVP link. Their responses appear in your dashboard, so you always know who’s coming." },
   { question: "Can I edit my invitation after publishing?", answer: "Yes. Publish and update controls let you change details like the schedule or venue and update your live page." },
-  { question: "What’s included in the ₱299/month business website?", answer: "A one-page site with your contact details, opening hours, an embedded Google Map, and links to your Facebook, Instagram, and TikTok. Hosting and HTTPS are included." },
+  { question: "What’s included in the ₱499/month business website?", answer: "A one-page site with your contact details, opening hours, an embedded Google Map, and links to your Facebook, Instagram, and TikTok. Hosting and HTTPS are included." },
   { question: "Can I use my own domain name?", answer: "Your own domain is part of our Custom Website service. Request a free consultation and we’ll scope the project to your budget." },
   { question: "How does the referral discount work?", answer: "Every account has a referral code. When a new customer uses your code on their first purchase, they get ₱50 off." },
 ];
