@@ -5,15 +5,22 @@ import { ArrowLeft, CalendarCheck, Check, ExternalLink, Eye, LoaderCircle, MapPi
 import { useState } from "react";
 import { saveBusinessDraft } from "@/app/studio/business/actions";
 import { BusinessSite } from "@/components/business-site";
+import { GalleryField, OptionPicker, PhotoField, SwatchPicker } from "@/features/studio/design-controls";
 import { buildGoogleMapsSearchUrl } from "@/lib/google-maps";
+import { businessFonts, businessThemes, isSamplePhoto, maxGalleryPhotos, type BusinessDesign } from "@/lib/site-design";
 import { useAutosave } from "@/lib/use-autosave";
 import type { BusinessDraft } from "@/types/business";
 
-type TextField = Exclude<keyof BusinessDraft, "projectId" | "projectName" | "bookingEnabled">;
+type TextField = Exclude<keyof BusinessDraft, "projectId" | "projectName" | "bookingEnabled" | "design">;
 
-export function BusinessStudio({ initialDraft }: { initialDraft: BusinessDraft }) {
+export function BusinessStudio({ initialDraft, userId }: { initialDraft: BusinessDraft; userId: string }) {
   const [draft, setDraft] = useState(initialDraft);
   const { saveState, saveMessage } = useAutosave(draft, saveBusinessDraft);
+  const uploadContext = { userId, projectId: draft.projectId };
+  const { logo, coverPhoto, gallery } = draft.design;
+  function updateDesign<K extends keyof BusinessDesign>(key: K, value: BusinessDesign[K]) {
+    setDraft(current => ({ ...current, design: { ...current.design, [key]: value } }));
+  }
 
   function field(key: TextField, label: string, options: { optional?: boolean; maxLength: number; type?: string; placeholder?: string; help?: string; multiline?: boolean }) {
     const id = `business-${key}`;
@@ -47,6 +54,15 @@ export function BusinessStudio({ initialDraft }: { initialDraft: BusinessDraft }
           {field("tagline", "Tagline", { optional: true, maxLength: 140, placeholder: "One sentence about what you do best" })}
           {field("about", "About", { optional: true, maxLength: 1000, multiline: true })}
           {field("services", "Products or services", { optional: true, maxLength: 1500, multiline: true, help: "Put each product or service on its own line." })}
+        </div></section>
+        <section className="editor-section"><h2>Photos</h2><div className="form-stack">
+          <PhotoField label="Logo" shape="square" maxEdge={600} help="A square logo looks best. It appears at the top of your site." value={logo} onChange={path => updateDesign("logo", path)} context={uploadContext} otherPhotos={[coverPhoto, ...gallery]}/>
+          <PhotoField label="Cover photo" help={isSamplePhoto(coverPhoto) ? "This is a sample photo. Replace it with a photo of your shop, products, or team." : "Shown behind your business name. A photo of your shop or products works best."} value={coverPhoto} onChange={path => updateDesign("coverPhoto", path)} context={uploadContext} otherPhotos={[logo, ...gallery]}/>
+          <GalleryField value={gallery} onChange={paths => updateDesign("gallery", paths)} context={uploadContext} otherPhotos={[logo, coverPhoto]} max={maxGalleryPhotos}/>
+        </div></section>
+        <section className="editor-section"><h2>Style</h2><div className="form-stack">
+          <SwatchPicker label="Color theme" options={businessThemes} value={draft.design.theme} onChange={theme => updateDesign("theme", theme)}/>
+          <OptionPicker label="Font style" options={businessFonts} value={draft.design.font} onChange={font => updateDesign("font", font)} previewClass={font => `font-preview-${font}`}/>
         </div></section>
         <section className="editor-section"><h2>Contact and hours</h2><div className="form-stack">
           {field("phone", "Phone number", { optional: true, maxLength: 40, type: "tel", placeholder: "0917 123 4567" })}

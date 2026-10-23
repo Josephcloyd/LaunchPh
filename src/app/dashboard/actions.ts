@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { designPhotos } from "@/lib/site-design";
+import { removeUnusedPhotos } from "@/services/site-photos";
 import { requireUser } from "@/services/supabase-server";
 import type { MutationResult, ProjectType } from "@/types/workspace";
 
@@ -129,8 +131,14 @@ export async function deleteProject(projectId: string): Promise<MutationResult> 
   const { supabase, user } = await requireUser();
   const { data: project } = await supabase.from("projects").select("name").eq("id", projectId).eq("owner_id", user.id).maybeSingle();
   if (!project) return { ok: false, message: "Project not found." };
+  const [event, profile] = await Promise.all([
+    supabase.from("wedding_events").select("design").eq("project_id", projectId).maybeSingle(),
+    supabase.from("business_profiles").select("design").eq("project_id", projectId).maybeSingle(),
+  ]);
+  const photos = [event.data, profile.data].flatMap(row => row ? designPhotos((row.design ?? {}) as Record<string, unknown>) : []);
   const { error } = await supabase.from("projects").delete().eq("id", projectId).eq("owner_id", user.id);
   if (error) return { ok: false, message: "Project could not be deleted." };
+  await removeUnusedPhotos(supabase, user.id, photos);
   await recordActivity(user.id, "project_deleted", `Deleted “${project.name}”.`);
   revalidatePath("/dashboard"); revalidatePath("/dashboard/projects");
   return { ok: true, message: "Project deleted." };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BusinessStudio } from "@/features/business/business-studio";
+import { readBusinessDesign, sampleBusinessDesign } from "@/lib/site-design";
 import { requireUser } from "@/services/supabase-server";
 
 export const metadata: Metadata = { title: "Business Site Studio", description: "Create a one-page website for your local business." };
@@ -16,7 +17,7 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
   const { data: project } = await supabase.from("projects").select("id, name").eq("id", params.project).eq("owner_id", user.id).eq("project_type", "business").maybeSingle();
   if (!project) redirect("/dashboard/projects");
 
-  const { data: profile } = await supabase.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled").eq("project_id", project.id).maybeSingle();
+  const { data: profile } = await supabase.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled, design").eq("project_id", project.id).maybeSingle();
   const contact = profile?.contact_details as StoredText;
   const hours = profile?.hours as StoredText;
   const socials = profile?.social_links as StoredText;
@@ -39,6 +40,7 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
     instagramUrl: text(socials, "instagram"),
     tiktokUrl: text(socials, "tiktok"),
     bookingEnabled: profile.booking_enabled === true,
+    design: readBusinessDesign(profile.design),
   } : {
     projectId: project.id,
     projectName: project.name,
@@ -56,5 +58,6 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
     instagramUrl: "",
     tiktokUrl: "",
     bookingEnabled: false,
-  }}/>;
+    design: sampleBusinessDesign,
+  }} userId={user.id}/>;
 }

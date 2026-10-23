@@ -15,7 +15,8 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${turnstileOrigin}${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  // Owner photos are served from the public site-photos bucket in Supabase Storage.
+  `img-src 'self' data: blob: ${supabaseOrigin}`,
   "font-src 'self'",
   `connect-src 'self' ${supabaseOrigin} ${supabaseSocket}${isDev ? " ws:" : ""}`,
   `frame-src https://www.google.com https://maps.google.com ${turnstileOrigin}`,

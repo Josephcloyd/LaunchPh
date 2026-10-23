@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { businessSiteSchema } from "@/lib/business-schema";
 import { formatPersonName } from "@/lib/person-name";
+import { readBusinessDesign, readInvitationDesign } from "@/lib/site-design";
 import { weddingInvitationSchema } from "@/lib/wedding-schema";
 
 type StoredText = Record<string, unknown> | null | undefined;
@@ -18,7 +19,7 @@ export type SiteContentResult =
 export async function buildSiteContent(client: SupabaseClient, projectId: string): Promise<SiteContentResult> {
   const { data: project } = await client.from("projects").select("project_type").eq("id", projectId).maybeSingle();
   if (project?.project_type === "wedding") {
-    const { data: event } = await client.from("wedding_events").select("event_kind, partner_one_first_name, partner_one_middle_name, partner_one_last_name, partner_two_first_name, partner_two_middle_name, partner_two_last_name, celebrant_first_name, celebrant_middle_name, celebrant_last_name, event_date, venue_name, map_url, story, souvenir_message, photo_album_url").eq("project_id", projectId).maybeSingle();
+    const { data: event } = await client.from("wedding_events").select("event_kind, partner_one_first_name, partner_one_middle_name, partner_one_last_name, partner_two_first_name, partner_two_middle_name, partner_two_last_name, celebrant_first_name, celebrant_middle_name, celebrant_last_name, event_date, venue_name, map_url, story, souvenir_message, photo_album_url, design").eq("project_id", projectId).maybeSingle();
     if (!event) return { ok: false, message: "The invitation hasn’t been saved yet." };
     const parsed = weddingInvitationSchema.safeParse({
       eventKind: event.event_kind === "debut" ? "debut" : "wedding",
@@ -37,6 +38,7 @@ export async function buildSiteContent(client: SupabaseClient, projectId: string
       story: event.story ?? "",
       souvenirMessage: event.souvenir_message ?? "",
       photoAlbumUrl: event.photo_album_url ?? "",
+      design: readInvitationDesign(event.design),
     });
     if (!parsed.success) return { ok: false, message: `The invitation is incomplete: ${parsed.error.issues[0]?.message ?? "check its details"}` };
     const invitation = parsed.data;
@@ -47,7 +49,7 @@ export async function buildSiteContent(client: SupabaseClient, projectId: string
   }
 
   if (project?.project_type === "business") {
-    const { data: profile } = await client.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled").eq("project_id", projectId).maybeSingle();
+    const { data: profile } = await client.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled, design").eq("project_id", projectId).maybeSingle();
     if (!profile) return { ok: false, message: "The business site hasn’t been saved yet." };
     const contact = profile.contact_details as StoredText, hours = profile.hours as StoredText, socials = profile.social_links as StoredText;
     const parsed = businessSiteSchema.safeParse({
@@ -65,6 +67,7 @@ export async function buildSiteContent(client: SupabaseClient, projectId: string
       instagramUrl: text(socials, "instagram"),
       tiktokUrl: text(socials, "tiktok"),
       bookingEnabled: profile.booking_enabled === true,
+      design: readBusinessDesign(profile.design),
     });
     if (!parsed.success) return { ok: false, message: `The business site is incomplete: ${parsed.error.issues[0]?.message ?? "check its details"}` };
     return { ok: true, content: parsed.data, slugParts: [parsed.data.businessName] };

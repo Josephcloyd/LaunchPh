@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { WeddingStudio } from "@/features/wedding/wedding-studio";
+import { readInvitationDesign, sampleInvitationDesign } from "@/lib/site-design";
 import { requireUser } from "@/services/supabase-server";
 
 export const metadata: Metadata = { title: "Invitation Studio", description: "Create and publish a personalized wedding or debut invitation." };
@@ -12,7 +13,7 @@ export default async function WeddingStudioPage({ searchParams }: PageProps<"/st
   const { data: project } = await supabase.from("projects").select("id, name").eq("id", params.project).eq("owner_id", user.id).eq("project_type", "wedding").maybeSingle();
   if (!project) redirect("/dashboard/projects");
 
-  const { data: event } = await supabase.from("wedding_events").select("event_kind, partner_one_first_name, partner_one_middle_name, partner_one_last_name, partner_two_first_name, partner_two_middle_name, partner_two_last_name, celebrant_first_name, celebrant_middle_name, celebrant_last_name, event_date, venue_name, map_url, story, souvenir_message, photo_album_url").eq("project_id", project.id).maybeSingle();
+  const { data: event } = await supabase.from("wedding_events").select("event_kind, partner_one_first_name, partner_one_middle_name, partner_one_last_name, partner_two_first_name, partner_two_middle_name, partner_two_last_name, celebrant_first_name, celebrant_middle_name, celebrant_last_name, event_date, venue_name, map_url, story, souvenir_message, photo_album_url, design").eq("project_id", project.id).maybeSingle();
   const date = event?.event_date
     ? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(event.event_date))
     : "2026-12-18";
@@ -40,5 +41,7 @@ export default async function WeddingStudioPage({ searchParams }: PageProps<"/st
       : "After seven years, three cities, and countless cups of coffee, we’re finally saying yes to forever."),
     souvenirMessage: event?.souvenir_message ?? "Thank you for being part of my eighteenth birthday. Your presence made the night unforgettable.",
     photoAlbumUrl: event?.photo_album_url ?? "",
-  }}/>;
+    // New drafts start with sample photos so owners can see the design; they replace them.
+    design: event ? readInvitationDesign(event.design) : sampleInvitationDesign(eventKind),
+  }} userId={user.id}/>;
 }

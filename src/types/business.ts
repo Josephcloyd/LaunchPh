@@ -1,3 +1,5 @@
+import type { BusinessDesign } from "@/lib/site-design";
+
 export type BusinessSiteContent = {
   businessName: string;
   businessType: string;
@@ -13,6 +15,7 @@ export type BusinessSiteContent = {
   instagramUrl: string;
   tiktokUrl: string;
   bookingEnabled: boolean;
+  design: BusinessDesign;
 };
 
 export type BusinessDraft = BusinessSiteContent & {

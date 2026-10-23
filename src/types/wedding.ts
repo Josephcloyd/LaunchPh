@@ -1,3 +1,5 @@
+import type { InvitationDesign } from "@/lib/site-design";
+
 export type InvitationKind = "wedding" | "debut";
 
 export type WeddingDraft = {
@@ -19,6 +21,7 @@ export type WeddingDraft = {
   story: string;
   souvenirMessage: string;
   photoAlbumUrl: string;
+  design: InvitationDesign;
 };
 
 export type WeddingDraftSaveResult =

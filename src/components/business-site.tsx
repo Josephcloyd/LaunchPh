@@ -1,8 +1,10 @@
-import { CalendarCheck, Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
+/* eslint-disable @next/next/no-img-element -- owner photos come from Supabase Storage, already resized on upload */
+import { CalendarCheck, Clock, ExternalLink, Images, Mail, MapPin, Phone } from "lucide-react";
 import { MadeByCredit } from "@/components/made-by-credit";
 import { SocialIcon } from "@/components/social-icons";
 import { BookingForm } from "@/features/business/booking-form";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsSearchUrl } from "@/lib/google-maps";
+import { photoUrl } from "@/lib/site-design";
 import { socialPlatformLabels, type SocialPlatform } from "@/lib/social-links";
 import type { BusinessSiteContent } from "@/types/business";
 
@@ -13,8 +15,12 @@ export function BusinessSite({ slug, ...props }: BusinessSiteContent & { slug?: 
   const phoneHref = props.phone ? `tel:${props.phone.replace(/[^\d+]/g, "")}` : "";
   const socials = ([["facebook", props.facebookUrl], ["instagram", props.instagramUrl], ["tiktok", props.tiktokUrl]] as [SocialPlatform, string][]).filter(([, url]) => url);
 
-  return <article className="business-site">
-    <header className="business-hero">
+  const { logo, coverPhoto, gallery } = props.design;
+
+  return <article className={`business-site biz-theme-${props.design.theme} biz-font-${props.design.font}`}>
+    <header className={coverPhoto ? "business-hero has-cover" : "business-hero"}>
+      {coverPhoto && <img className="business-hero-photo" src={photoUrl(coverPhoto)} alt=""/>}
+      {logo && <img className="business-logo" src={photoUrl(logo)} alt={`${props.businessName} logo`}/>}
       {props.businessType && <p className="business-type">{props.businessType}</p>}
       <h2>{props.businessName || "Your business name"}</h2>
       {props.tagline && <p className="business-tagline">{props.tagline}</p>}
@@ -29,6 +35,8 @@ export function BusinessSite({ slug, ...props }: BusinessSiteContent & { slug?: 
     {props.about && <section className="business-section"><h3>About us</h3><p className="business-about">{props.about}</p></section>}
 
     {services.length > 0 && <section className="business-section"><h3>What we offer</h3><ul className="business-services">{services.map((service, index) => <li key={`${index}-${service}`}>{service}</li>)}</ul></section>}
+
+    {gallery.length > 0 && <section className="business-section business-gallery"><h3><Images size={16} aria-hidden="true"/> Gallery</h3><div className={`business-gallery-grid count-${gallery.length}`}>{gallery.map((path, index) => <img key={`${index}-${path}`} src={photoUrl(path)} alt="" loading="lazy" decoding="async"/>)}</div></section>}
 
     {props.bookingEnabled && <BookingForm slug={slug} businessName={props.businessName} services={services}/>}
 

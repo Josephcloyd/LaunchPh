@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { businessDraftSchema } from "@/lib/business-schema";
+import { photosBelongTo } from "@/lib/site-design";
 import { refreshLiveContent } from "@/services/site-content";
 import { requireUser } from "@/services/supabase-server";
 import type { BusinessDraftSaveResult } from "@/types/business";
@@ -22,6 +23,7 @@ export async function saveBusinessDraft(input: unknown): Promise<BusinessDraftSa
     .maybeSingle();
 
   if (!project) return { ok: false, message: "Business project not found." };
+  if (!photosBelongTo(user.id, parsed.data.design)) return { ok: false, message: "One of the photos could not be used. Please upload it again." };
 
   const savedAt = new Date().toISOString();
   const site = parsed.data;
@@ -38,6 +40,7 @@ export async function saveBusinessDraft(input: unknown): Promise<BusinessDraftSa
     hours: { text: site.hours },
     social_links: { facebook: site.facebookUrl, instagram: site.instagramUrl, tiktok: site.tiktokUrl },
     booking_enabled: site.bookingEnabled,
+    design: site.design,
     updated_at: savedAt,
   }, { onConflict: "project_id" });
 

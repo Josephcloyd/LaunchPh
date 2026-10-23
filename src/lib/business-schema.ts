@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isGoogleMapsUrl } from "@/lib/google-maps";
+import { businessDesignSchema, defaultBusinessDesign } from "@/lib/site-design";
 import { isSocialProfileUrl, socialPlatformLabels, type SocialPlatform } from "@/lib/social-links";
 
 function socialUrl(platform: SocialPlatform) {
@@ -23,6 +24,7 @@ export const businessSiteSchema = z.object({
   instagramUrl: socialUrl("instagram"),
   tiktokUrl: socialUrl("tiktok"),
   bookingEnabled: z.boolean().default(false),
+  design: businessDesignSchema.catch(defaultBusinessDesign),
 });
 
 export const businessDraftSchema = businessSiteSchema.extend({

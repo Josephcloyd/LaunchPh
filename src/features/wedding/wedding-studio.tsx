@@ -6,10 +6,13 @@ import { useState } from "react";
 import { saveWeddingDraft } from "@/app/studio/wedding/actions";
 import { DebutSouvenir } from "@/components/debut-souvenir";
 import { WeddingInvitation } from "@/components/wedding-invitation";
+import { GalleryField, OptionPicker, PhotoField, SwatchPicker } from "@/features/studio/design-controls";
 import { checkoutProducts } from "@/lib/checkout-products";
 import { formatEventDate } from "@/lib/event-date";
 import { formatPersonName } from "@/lib/person-name";
 import { buildGoogleMapsSearchUrl } from "@/lib/google-maps";
+import { invitationFontVariables } from "@/lib/invitation-fonts";
+import { invitationFonts, invitationLayouts, invitationThemes, isSamplePhoto, maxGalleryPhotos, sampleInvitationDesign, type InvitationDesign } from "@/lib/site-design";
 import { useAutosave } from "@/lib/use-autosave";
 import type { WeddingDraft } from "@/types/wedding";
 
@@ -18,18 +21,41 @@ const invitationKinds = [
   { value: "debut", label: "Debut", price: checkoutProducts["debut-invitation"].price, Icon: Sparkles },
 ] as const;
 
-export function WeddingStudio({ initialDraft }: { initialDraft: WeddingDraft }) {
+const sampleStories = {
+  wedding: "After seven years, three cities, and countless cups of coffee, we’re finally saying yes to forever.",
+  debut: "Eighteen years of family, friends, and memories — join us for an evening of roses, candles, and celebration.",
+};
+
+export function WeddingStudio({ initialDraft, userId }: { initialDraft: WeddingDraft; userId: string }) {
   const [draft, setDraft] = useState(initialDraft);
   const { saveState, saveMessage } = useAutosave(draft, saveWeddingDraft);
 
   function update<K extends keyof WeddingDraft>(key: K, value: WeddingDraft[K]) {
     setDraft(current => ({ ...current, [key]: value }));
   }
+  function updateDesign<K extends keyof InvitationDesign>(key: K, value: InvitationDesign[K]) {
+    setDraft(current => ({ ...current, design: { ...current.design, [key]: value } }));
+  }
+  // Switching between wedding and debut swaps the sample story and photos, but never the owner’s own.
+  function changeKind(kind: WeddingDraft["eventKind"]) {
+    setDraft(current => {
+      const ownPhotos = [current.design.coverPhoto, ...current.design.gallery].some(path => path && !isSamplePhoto(path));
+      const sampleDesign = sampleInvitationDesign(kind);
+      return {
+        ...current,
+        eventKind: kind,
+        story: current.story === sampleStories[current.eventKind] ? sampleStories[kind] : current.story,
+        design: ownPhotos ? current.design : { ...current.design, coverPhoto: current.design.coverPhoto ? sampleDesign.coverPhoto : "", gallery: current.design.gallery.length ? sampleDesign.gallery : [] },
+      };
+    });
+  }
+  const uploadContext = { userId, projectId: draft.projectId };
+  const { coverPhoto, gallery } = draft.design;
 
   const isDebut = draft.eventKind === "debut";
   const SaveIcon = saveState === "saving" ? LoaderCircle : saveState === "error" ? TriangleAlert : Check;
 
-  return <div className="site-shell studio-layout">
+  return <div className={`site-shell studio-layout ${invitationFontVariables}`}>
     <header className="studio-topbar">
       <div className="studio-title">
         <Link className="icon-button" href="/dashboard" aria-label="Back to dashboard"><ArrowLeft size={17}/></Link>
@@ -46,7 +72,7 @@ export function WeddingStudio({ initialDraft }: { initialDraft: WeddingDraft }) 
         {saveState === "error" && <div className="notice error-notice" style={{marginBottom:20}}>Your invitation is still visible here, but the latest changes are not stored yet.</div>}
         <section className="editor-section"><h2>Invitation type</h2>
           <div className="kind-toggle" role="radiogroup" aria-label="Invitation type">
-            {invitationKinds.map(({ value, label, price, Icon }) => <label key={value} className={draft.eventKind === value ? "active" : ""}><input type="radio" name="event-kind" value={value} checked={draft.eventKind === value} onChange={() => update("eventKind", value)}/><Icon size={17}/><span><strong>{label}</strong><small>₱{price.toLocaleString("en-PH")}</small></span></label>)}
+            {invitationKinds.map(({ value, label, price, Icon }) => <label key={value} className={draft.eventKind === value ? "active" : ""}><input type="radio" name="event-kind" value={value} checked={draft.eventKind === value} onChange={() => changeKind(value)}/><Icon size={17}/><span><strong>{label}</strong><small>₱{price.toLocaleString("en-PH")}</small></span></label>)}
           </div>
         </section>
         <section className="editor-section"><h2>{isDebut ? "Celebrant details" : "Couple details"}</h2><div className="form-stack">
@@ -69,13 +95,22 @@ export function WeddingStudio({ initialDraft }: { initialDraft: WeddingDraft }) 
           <div className="field"><label htmlFor="venue">Venue</label><input id="venue" className="input" value={draft.venue} maxLength={160} onChange={event => update("venue", event.target.value)}/><a className="maps-search-link" href={buildGoogleMapsSearchUrl(draft.venue)} target="_blank" rel="noreferrer" aria-disabled={!draft.venue.trim()}><MapPinned size={14}/> Search this venue on Google Maps <ExternalLink size={12}/></a></div>
           <div className="field"><label htmlFor="map-url">Google Maps link <span className="fine">(optional)</span></label><input id="map-url" className="input" type="url" inputMode="url" value={draft.mapUrl} maxLength={2048} placeholder="Paste the venue’s Google Maps share link" onChange={event => update("mapUrl", event.target.value)}/><span className="field-help">In Google Maps, open the correct venue, choose Share, then paste its link here for exact directions.</span></div>
         </div></section>
+        <section className="editor-section"><h2>Photos</h2><div className="form-stack">
+          <PhotoField label="Cover photo" help={isSamplePhoto(coverPhoto) ? "This is a sample photo. Replace it with your own." : isDebut ? "A portrait of the celebrant works best." : "A photo of the two of you works best."} value={coverPhoto} onChange={path => updateDesign("coverPhoto", path)} context={uploadContext} otherPhotos={gallery}/>
+          <GalleryField value={gallery} onChange={paths => updateDesign("gallery", paths)} context={uploadContext} otherPhotos={[coverPhoto]} max={maxGalleryPhotos}/>
+        </div></section>
+        <section className="editor-section"><h2>Style</h2><div className="form-stack">
+          <SwatchPicker label="Color theme" options={invitationThemes} value={draft.design.theme} onChange={theme => updateDesign("theme", theme)}/>
+          <OptionPicker label="Font style" options={invitationFonts} value={draft.design.font} onChange={font => updateDesign("font", font)} previewClass={font => `font-preview-${font}`}/>
+          <OptionPicker label="Layout" options={invitationLayouts} value={draft.design.layout} onChange={layout => updateDesign("layout", layout)}/>
+          {!coverPhoto && <p className="field-help">Add a cover photo to use the layouts.</p>}
+        </div></section>
         <section className="editor-section"><h2>{isDebut ? "Message to guests" : "Our story"}</h2><div className="field"><label htmlFor="story">Short message</label><textarea id="story" className="textarea" value={draft.story} maxLength={800} onChange={event => update("story", event.target.value)}/><span className="field-counter">{draft.story.length}/800</span></div></section>
         {isDebut && <section className="editor-section"><h2>Digital souvenirs</h2><div className="form-stack">
           <p className="fine">From the debut date, guests can save a thank-you keepsake card. Guests using their private link see their own name on it.</p>
           <div className="field"><label htmlFor="souvenir-message">Thank-you message</label><textarea id="souvenir-message" className="textarea" value={draft.souvenirMessage} maxLength={300} onChange={event => update("souvenirMessage", event.target.value)}/><span className="field-counter">{draft.souvenirMessage.length}/300</span></div>
           <div className="field"><label htmlFor="photo-album-url">Photo album link <span className="fine">(optional)</span></label><input id="photo-album-url" className="input" type="url" inputMode="url" value={draft.photoAlbumUrl} maxLength={2048} placeholder="https://photos.app.goo.gl/…" onChange={event => update("photoAlbumUrl", event.target.value)}/><span className="field-help">Share a Google Photos or Google Drive album so guests can view and download pictures from the night. You can add it after the debut.</span></div>
         </div></section>}
-        <section className="editor-section"><h2>More guest features</h2><p className="fine">Guest photo uploads are planned after the initial launch.</p></section>
       </aside>
       <main className="canvas-area">
         <WeddingInvitation {...draft}/>

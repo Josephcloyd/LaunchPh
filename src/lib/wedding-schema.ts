@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isGoogleMapsUrl } from "@/lib/google-maps";
+import { defaultInvitationDesign, invitationDesignSchema } from "@/lib/site-design";
 
 const nameField = z.string().trim().max(80).default("");
 
@@ -24,6 +25,7 @@ const invitationObject = z.object({
   // Debut digital souvenirs
   souvenirMessage: z.string().trim().max(300).default(""),
   photoAlbumUrl: z.string().trim().max(2048).refine(value => !value || isHttpsUrl(value), "Paste the full photo album link, starting with https://.").default(""),
+  design: invitationDesignSchema.catch(defaultInvitationDesign),
 });
 
 function isHttpsUrl(value: string) {

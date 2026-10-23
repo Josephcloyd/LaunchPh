@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { formatPersonName } from "@/lib/person-name";
+import { photosBelongTo } from "@/lib/site-design";
 import { weddingDraftSchema } from "@/lib/wedding-schema";
 import { refreshLiveContent } from "@/services/site-content";
 import { requireUser } from "@/services/supabase-server";
@@ -23,6 +24,7 @@ export async function saveWeddingDraft(input: unknown): Promise<WeddingDraftSave
     .maybeSingle();
 
   if (!project) return { ok: false, message: "Wedding project not found." };
+  if (!photosBelongTo(user.id, parsed.data.design)) return { ok: false, message: "One of the photos could not be used. Please upload it again." };
 
   const savedAt = new Date().toISOString();
   const bride = formatPersonName({
@@ -56,6 +58,7 @@ export async function saveWeddingDraft(input: unknown): Promise<WeddingDraftSave
     story: parsed.data.story,
     souvenir_message: parsed.data.souvenirMessage || null,
     photo_album_url: parsed.data.photoAlbumUrl || null,
+    design: parsed.data.design,
     rsvp_enabled: false,
     photo_uploads_enabled: false,
     updated_at: savedAt,

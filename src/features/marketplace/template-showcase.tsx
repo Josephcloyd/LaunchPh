@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Check, MousePointer2 } from "lucide-react";
 import { BusinessSite } from "@/components/business-site";
 import { WeddingInvitation } from "@/components/wedding-invitation";
+import { sampleBusinessDesign, sampleInvitationDesign } from "@/lib/site-design";
 import type { BusinessSiteContent } from "@/types/business";
 import type { WeddingDraft } from "@/types/wedding";
 
@@ -22,6 +23,7 @@ const weddingSample: InvitationSample = {
   date: "2026-12-18",
   venue: "Chapel on the Hill, Tagaytay",
   story: "We met on a rainy Tuesday in Makati and have been sharing umbrellas ever since. We can’t wait to celebrate with the people who made our story possible.",
+  design: sampleInvitationDesign("wedding"),
 };
 
 const debutSample: InvitationSample = {
@@ -31,6 +33,7 @@ const debutSample: InvitationSample = {
   date: "2027-02-14",
   venue: "The Grand Ballroom, Quezon City",
   story: "Eighteen years of laughter, growing up, and wonderful people. Please join me for a night of roses, candles, and dancing.",
+  design: sampleInvitationDesign("debut"),
 };
 
 // No address on purpose: an address embeds a live Google Map iframe in the preview.
@@ -49,6 +52,7 @@ const businessSample: BusinessSiteContent = {
   instagramUrl: "https://www.instagram.com/",
   tiktokUrl: "",
   bookingEnabled: true,
+  design: { ...sampleBusinessDesign, gallery: [...sampleBusinessDesign.gallery, "/template-previews/cafe-counter.webp"] },
 };
 
 export const templates = [
@@ -58,8 +62,8 @@ export const templates = [
     category: "Wedding invitation",
     price: "₱799",
     suffix: "one-time",
-    description: "A timeless editorial invitation in soft ivory and sage, with your story, the venue, and directions on one elegant page.",
-    features: ["Your own invitation link", "Private RSVP link for every guest", "Guest responses in your dashboard", "Update details any time after publishing"],
+    description: "A timeless editorial invitation with your cover photo, your story, a photo gallery, and directions on one elegant page.",
+    features: ["Cover photo and a gallery of up to 6 photos", "6 color themes, 3 font styles, 2 layouts", "Private RSVP link for every guest", "Update details any time after publishing"],
     url: "launchph.ph/wedding/lea-and-miguel",
     href: "/dashboard/projects/new",
     cta: "Create my invitation",
@@ -72,7 +76,7 @@ export const templates = [
     price: "₱999",
     suffix: "one-time",
     description: "A graceful invitation for an unforgettable 18th, with guest RSVPs and digital souvenirs to remember the night.",
-    features: ["Your own invitation link", "Private RSVP link for every guest", "Keepsake card for every guest", "Photo album link to share memories"],
+    features: ["Cover photo and a gallery of up to 6 photos", "6 color themes, 3 font styles, 2 layouts", "Private RSVP link for every guest", "Keepsake card and photo album link"],
     url: "launchph.ph/wedding/bea-turns-18",
     href: "/dashboard/projects/new?type=debut",
     cta: "Create my debut invitation",
@@ -84,8 +88,8 @@ export const templates = [
     category: "Small business",
     price: "₱499",
     suffix: "/ month",
-    description: "A clean one-page site that tells customers what you offer, when you’re open, and how to reach you.",
-    features: ["Services, hours, and contact details", "Google Map and directions", "Facebook, Instagram, and TikTok links", "Hosting and HTTPS included"],
+    description: "A one-page site with your logo, photos, and services that lets customers book, find you, and reach you.",
+    features: ["Logo, cover photo, and a photo gallery", "Booking requests sent to your email", "6 color themes and 2 font styles", "Google Map, socials, hosting, and HTTPS"],
     url: "launchph.ph/site/kape-kalye",
     href: "/dashboard/projects/new?type=business",
     cta: "Create my business site",
