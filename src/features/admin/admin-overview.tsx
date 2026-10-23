@@ -1,25 +1,9 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowDownRight, ArrowUpRight, BriefcaseBusiness, ExternalLink, FileStack, Globe, Inbox, LifeBuoy, Mail, Minus, Users } from "lucide-react";
+import { AlertTriangle, ArrowDownRight, ArrowUpRight, ExternalLink, Globe, Inbox, LifeBuoy, Mail, Minus, BriefcaseBusiness } from "lucide-react";
 import type { AdminOverviewData, InboxItem } from "@/features/admin/admin-data";
+import { compactPeso, peso, timeAgo } from "@/features/admin/format";
 import { PaymentReview } from "@/features/admin/payment-review";
 import { RefreshButton } from "@/features/admin/refresh-button";
-
-const peso = (centavos: number) => `₱${(centavos / 100).toLocaleString("en-PH", { maximumFractionDigits: 0 })}`;
-const compactPeso = (centavos: number) => `₱${new Intl.NumberFormat("en-PH", { notation: "compact", maximumFractionDigits: 1 }).format(centavos / 100)}`;
-const shortDate = (iso: string) => new Date(iso).toLocaleDateString("en-PH", { month: "short", day: "numeric", timeZone: "Asia/Manila" });
-
-function timeAgo(iso: string, now: number) {
-  const minutes = Math.round((now - new Date(iso).getTime()) / 60000);
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-  if (minutes < 60) return rtf.format(-minutes, "minute");
-  if (minutes < 60 * 24) return rtf.format(-Math.round(minutes / 60), "hour");
-  if (minutes < 60 * 24 * 30) return rtf.format(-Math.round(minutes / 1440), "day");
-  return shortDate(iso);
-}
-
-function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "?";
-}
 
 /** Round the axis maximum up to a clean step so ticks read ₱0 / ₱5K / ₱10K. */
 function niceMax(value: number) {
@@ -29,7 +13,7 @@ function niceMax(value: number) {
   return step * magnitude;
 }
 
-const inboxKinds: Record<InboxItem["kind"], { label: string; icon: typeof Globe }> = {
+export const inboxKinds: Record<InboxItem["kind"], { label: string; icon: typeof Globe }> = {
   website: { label: "Custom website", icon: Globe },
   job: { label: "Job application", icon: BriefcaseBusiness },
   support: { label: "Support ticket", icon: LifeBuoy },
@@ -43,6 +27,11 @@ function Delta({ current, previous }: { current: number; previous: number }) {
   return <span className={`adm-delta ${change >= 0 ? "up" : "down"}`}><Icon size={13}/> {change >= 0 ? "+" : ""}{(change * 100).toFixed(1)}% vs last month</span>;
 }
 
+export function FailedNotice({ failed }: { failed: string[] }) {
+  if (failed.length === 0) return null;
+  return <div className="adm-alert" role="status"><AlertTriangle size={16}/><span>Couldn’t load {failed.join(", ")}. Those sections may be incomplete. Check that every Supabase migration has been applied.</span></div>;
+}
+
 export function AdminOverview({ data, adminName }: { data: AdminOverviewData; adminName: string }) {
   const now = data.generatedAt;
   const thisMonth = data.revenue[data.revenue.length - 1];
@@ -50,7 +39,6 @@ export function AdminOverview({ data, adminName }: { data: AdminOverviewData; ad
   const sixMonthTotal = data.revenue.reduce((sum, month) => sum + month.centavos, 0);
   const axisMax = niceMax(Math.max(...data.revenue.map(month => month.centavos)));
   const ticks = [axisMax, axisMax / 2, 0];
-  const mixMax = Math.max(1, ...data.projects.mix.map(row => row.count));
   const hour = Number(new Intl.DateTimeFormat("en-PH", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Manila" }).format(new Date(now)));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const today = new Date(now).toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", timeZone: "Asia/Manila" });
@@ -67,11 +55,11 @@ export function AdminOverview({ data, adminName }: { data: AdminOverviewData; ad
       </div>
     </header>
 
-    {data.failed.length > 0 && <div className="adm-alert" role="status"><AlertTriangle size={16}/><span>Couldn’t load {data.failed.join(", ")}. Those sections may be incomplete. Check that every Supabase migration has been applied.</span></div>}
+    <FailedNotice failed={data.failed}/>
 
     <PaymentReview payments={data.pendingPayments}/>
 
-    <section className="adm-hero glass" id="revenue" aria-labelledby="revenue-title">
+    <section className="adm-hero glass adm-row" id="revenue" aria-labelledby="revenue-title">
       <div className="adm-hero-figure">
         <p className="adm-label" id="revenue-title">Revenue this month</p>
         <strong className="adm-hero-number">{peso(thisMonth.centavos)}</strong>
@@ -105,52 +93,17 @@ export function AdminOverview({ data, adminName }: { data: AdminOverviewData; ad
       </figure>
     </section>
 
-    <section className="adm-stats" aria-label="Key numbers">
-      <article className="adm-stat glass"><p className="adm-label"><Users size={15}/> Customers</p><strong>{data.customers.total.toLocaleString("en-PH")}</strong><span>+{data.customers.newThisMonth} joined this month</span></article>
-      <article className="adm-stat glass"><p className="adm-label"><FileStack size={15}/> Projects</p><strong>{data.projects.total.toLocaleString("en-PH")}</strong><span>{data.projects.published} published</span></article>
-      <article className="adm-stat glass"><p className="adm-label"><Inbox size={15}/> New requests</p><strong>{data.openRequests}</strong><span>Inquiries and tickets awaiting a reply</span></article>
-    </section>
-
-    <section className="content-grid adm-row">
-      <div className="panel glass" id="requests">
-        <div className="panel-head"><h2>Requests inbox</h2><span className="fine">Newest first</span></div>
-        {data.inbox.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>You’re all caught up. New inquiries and support tickets will appear here.</p></div> :
-          <ul className="adm-inbox">{data.inbox.map(item => {
-            const { label, icon: Icon } = inboxKinds[item.kind];
-            return <li key={`${item.kind}-${item.id}`}>
-              <span className="adm-inbox-icon"><Icon size={16}/></span>
-              <div><p className="adm-inbox-kind">{label} · {timeAgo(item.createdAt, now)}</p><h3>{item.title}</h3><p>{item.detail}</p></div>
-              <div className="adm-inbox-side"><span className={`status-pill ${item.status}`}>{item.status}</span>{item.email && <a className="icon-button adm-mail" href={`mailto:${item.email}`} aria-label={`Email ${item.title}`}><Mail size={15}/></a>}</div>
-            </li>;
-          })}</ul>}
-      </div>
-      <aside className="panel glass" id="projects">
-        <div className="panel-head"><h2>Projects by type</h2><span className="fine">Published / total</span></div>
-        <ul className="adm-mix">{data.projects.mix.map(row => <li key={row.label}>
-          <div className="adm-mix-label"><span>{row.label}</span><b>{row.published} / {row.count}</b></div>
-          <span className="adm-meter" role="img" aria-label={`${row.label}: ${row.published} published of ${row.count}`}><i style={{ width: `${(row.count / mixMax) * 100}%` }}><i style={{ width: row.count ? `${(row.published / row.count) * 100}%` : 0 }}/></i></span>
-        </li>)}</ul>
-        <p className="adm-legend" aria-hidden="true"><span><i className="published"/> Published</span><span><i/> Draft</span></p>
-      </aside>
-    </section>
-
-    <section className="content-grid adm-row">
-      <div className="panel glass" id="orders">
-        <div className="panel-head"><h2>Recent orders</h2></div>
-        {data.recentOrders.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>No orders yet. They’ll show up here once customers check out.</p></div> :
-          <div className="table-wrap"><table className="data-table"><thead><tr><th>Reference</th><th>Customer</th><th>Date</th><th>Status</th><th className="num">Total</th></tr></thead><tbody>{data.recentOrders.map(order => <tr key={order.id}><td><strong>{order.reference}</strong></td><td>{order.customer}</td><td>{shortDate(order.createdAt)}</td><td><span className={`status-pill ${order.status}`}>{order.status.replace("_", " ")}</span></td><td className="num">{peso(order.totalCentavos)}</td></tr>)}</tbody></table></div>}
-      </div>
-      <aside className="panel glass" id="customers">
-        <div className="panel-head"><h2>Newest customers</h2><Users size={17}/></div>
-        {data.recentCustomers.length === 0 ? <div className="adm-empty"><Users size={22}/><p>No sign-ups yet.</p></div> :
-          <ul className="adm-people">{data.recentCustomers.map(person => <li key={person.id}><span className="avatar">{initials(person.name)}</span><div><h3>{person.name}</h3><p>Joined {timeAgo(person.createdAt, now)} · {person.projects} {person.projects === 1 ? "project" : "projects"}</p></div></li>)}</ul>}
-      </aside>
-    </section>
-
-    <section className="panel glass adm-row" id="templates">
-      <div className="panel-head"><h2>Templates</h2><span className="fine">Managed in Supabase</span></div>
-      {data.templates.length === 0 ? <div className="adm-empty"><FileStack size={22}/><p>No templates in the database yet. The built-in wedding, debut, and business designs don’t need a template record.</p></div> :
-        <div className="table-wrap"><table className="data-table"><thead><tr><th>Template</th><th>Category</th><th>Status</th><th>Updated</th><th className="num">Price</th></tr></thead><tbody>{data.templates.map(template => <tr key={template.id}><td><strong>{template.name}</strong></td><td>{template.category}</td><td><span className={`status-pill ${template.status}`}>{template.status}</span></td><td>{shortDate(template.updatedAt)}</td><td className="num">{template.priceCentavos ? peso(template.priceCentavos) : "Free"}</td></tr>)}</tbody></table></div>}
+    <section className="panel glass adm-row" id="requests">
+      <div className="panel-head"><h2>Requests inbox</h2><Link href="/admin/requests">View all requests ({data.openRequests} new)</Link></div>
+      {data.inbox.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>You’re all caught up. New inquiries and support tickets will appear here.</p></div> :
+        <ul className="adm-inbox">{data.inbox.map(item => {
+          const { label, icon: Icon } = inboxKinds[item.kind];
+          return <li key={`${item.kind}-${item.id}`}>
+            <span className="adm-inbox-icon"><Icon size={16}/></span>
+            <div><p className="adm-inbox-kind">{label} · {timeAgo(item.createdAt, now)}</p><h3>{item.title}</h3><p>{item.detail}</p></div>
+            <div className="adm-inbox-side"><span className={`status-pill ${item.status}`}>{item.status}</span>{item.email && <a className="icon-button adm-mail" href={`mailto:${item.email}`} aria-label={`Email ${item.title}`}><Mail size={15}/></a>}</div>
+          </li>;
+        })}</ul>}
     </section>
   </div>;
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { requestStatuses } from "@/features/admin/admin-data";
 import { siteSlug } from "@/lib/slug";
 import { appUrl, sendEmail } from "@/services/email";
 import { buildSiteContent } from "@/services/site-content";
@@ -95,4 +96,53 @@ export async function rejectPayment(id: string, note: string): Promise<MutationR
   }
   revalidatePath("/admin");
   return { ok: true, message: `Rejected ${order.reference}. The customer was told why.` };
+}
+
+const requestTables = { website: "website_inquiries", job: "job_application_inquiries", support: "support_tickets" } as const;
+
+// Move an inquiry or ticket along (e.g. new → contacted → closed). Runs with the admin's own
+// session; RLS lets admins update these tables.
+export async function updateRequestStatus(kind: string, id: string, status: string): Promise<MutationResult> {
+  if (!(await requireAdmin())) return { ok: false, message: "Only admins can update requests." };
+  if (!(kind in requestTables) || !orderId.safeParse(id).success) return { ok: false, message: "Request not found." };
+  const requestKind = kind as keyof typeof requestTables;
+  if (!requestStatuses[requestKind].includes(status)) return { ok: false, message: "That status isn’t allowed." };
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from(requestTables[requestKind]).update({ status, updated_at: new Date().toISOString() }).eq("id", id).select("id").maybeSingle();
+  if (error || !data) return { ok: false, message: "The status couldn’t be changed." };
+  revalidatePath("/admin");
+  revalidatePath("/admin/requests");
+  return { ok: true, message: `Marked as ${status}.` };
+}
+
+const refundSchema = z.object({ id: orderId, note: z.string().trim().min(3, "Say briefly why, for your records and the customer.").max(300) });
+
+// Record a refund after sending the money back by GCash, Maya, or bank. A refunded invitation is
+// unpublished, as the Refund Policy says. Business site plans keep their paid-until date; change
+// it in Supabase if the refund should shorten the plan.
+export async function refundOrder(id: string, note: string): Promise<MutationResult> {
+  const reviewer = await requireAdmin();
+  if (!reviewer) return { ok: false, message: "Only admins can refund orders." };
+  const parsed = refundSchema.safeParse({ id, note });
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check the reason." };
+  const admin = createSupabaseAdminClient();
+  const { data: order } = await admin.from("orders")
+    .update({ status: "refunded", review_note: `Refunded: ${parsed.data.note}`, reviewed_at: new Date().toISOString(), reviewed_by: reviewer.id })
+    .eq("id", parsed.data.id).in("status", ["paid", "partially_refunded"])
+    .select("user_id, reference, order_items(project_id, projects(project_type))").maybeSingle();
+  if (!order) return { ok: false, message: "Only paid orders can be refunded." };
+
+  const item = Array.isArray(order.order_items) ? order.order_items[0] : order.order_items;
+  const project = Array.isArray(item?.projects) ? item.projects[0] : item?.projects;
+  const isInvitation = project?.project_type === "wedding";
+  if (isInvitation && item?.project_id) {
+    await admin.from("published_sites").update({ is_live: false, updated_at: new Date().toISOString() }).eq("project_id", item.project_id);
+    await admin.from("projects").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", item.project_id);
+  }
+  await admin.from("notifications").insert({ user_id: order.user_id, notification_type: "order_refunded", title: "Refund sent", body: `Order ${order.reference} was refunded.${isInvitation ? " The invitation is no longer published." : ""}`, action_url: "/dashboard/billing" });
+  const to = await customerEmail(order.user_id);
+  if (to) await sendEmail({ to, subject: `Refund for order ${order.reference}`, lines: [`We’ve refunded order ${order.reference}.`, `Note: ${parsed.data.note}`, ...(isInvitation ? ["The invitation has been unpublished. Your content is still in your account."] : [])], action: { label: "View billing", url: appUrl("/dashboard/billing") } });
+  revalidatePath("/admin");
+  revalidatePath("/admin/orders");
+  return { ok: true, message: `Refunded ${order.reference}.${isInvitation ? " The invitation was unpublished." : " The plan's paid-until date is unchanged."}` };
 }

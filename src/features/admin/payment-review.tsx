@@ -31,7 +31,7 @@ export function PaymentReview({ payments }: { payments: PendingPayment[] }) {
   return <section className="panel glass adm-row" id="payments" aria-labelledby="payments-title">
     <div className="panel-head"><h2 id="payments-title">Payments to confirm</h2><span className="fine">Check each one arrived in your account first</span></div>
     {result && <div className={`workspace-message ${result.ok ? "success" : "error"}`} role="status">{result.message}</div>}
-    {payments.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>No payments waiting. When a customer sends their GCash, Maya, or bank reference, it appears here.</p></div> :
+    {payments.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>No payments waiting. When a customer sends their GCash or Maya reference, it appears here.</p></div> :
       <div className="table-wrap"><table className="data-table"><thead><tr><th>Order</th><th>Customer</th><th>Method and reference</th><th>Sent</th><th className="num">Amount</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{payments.map(payment => <tr key={payment.id}>
         <td><strong>{payment.reference}</strong><br/><span className="fine">{payment.item}{payment.projectName && ` · ${payment.projectName}`}</span></td>
         <td>{payment.customer}</td>

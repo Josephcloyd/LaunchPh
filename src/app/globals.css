@@ -1597,6 +1597,45 @@ a.free-builder-card:hover { transform: translateY(-5px); background: rgba(255,25
 .adm-alert svg { flex: 0 0 auto; }
 .adm-label { display: flex; align-items: center; gap: 8px; color: #bfcac5; font: 600 .8rem/1 var(--font-ui); }
 .adm-row { margin-top: 15px; }
+/* Admin sub-pages: Requests, Projects, Orders, Customers, Templates */
+.adm-subtitle { margin-top: 8px; color: #aebdb5; font-size: .9rem; }
+.adm-filter-row { margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.adm-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm-tabs a { padding: 8px 12px; border: 1px solid var(--line); border-radius: 99px; display: inline-flex; align-items: center; gap: 7px; color: #c9d6cf; font: 600 .78rem/1 var(--font-ui); }
+.adm-tabs a span { min-width: 20px; padding: 2px 6px; border-radius: 99px; background: rgba(255,255,255,.1); font-size: .68rem; text-align: center; }
+.adm-tabs a.active { background: var(--cream); border-color: var(--cream); color: var(--forest-deep); }
+.adm-tabs a.active span { background: rgba(32,53,46,.12); }
+.adm-toggle-link { color: #c7d7cf; font-size: .78rem; text-decoration: underline; }
+.adm-request-list { margin: 0; padding: 0; list-style: none; }
+.adm-request { padding: 16px 0; border-top: 1px solid rgba(255,255,255,.1); }
+.adm-request-head { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 14px; }
+.adm-request-title h3 { margin-top: 3px; font-size: .92rem; }
+.adm-request-title > p:last-child { color: #aebcb4; font-size: .78rem; }
+.adm-request-message { margin: 10px 0 0 52px; color: #dbe5df; font-size: .86rem; white-space: pre-line; }
+.adm-request-meta { margin: 10px 0 0 52px; display: flex; flex-wrap: wrap; gap: 6px 14px; color: #aebcb4; font-size: .76rem; }
+.adm-request-meta a { display: inline-flex; align-items: center; gap: 5px; color: var(--cream); }
+.adm-status-control { display: inline-grid; gap: 4px; justify-items: end; }
+.adm-status-select { min-height: 34px; width: auto; padding: 0 10px; font-size: .78rem; text-transform: capitalize; }
+.adm-inline-error { max-width: 220px; color: #f4cec5; font-size: .72rem; text-align: right; }
+.adm-inline-ok { max-width: 220px; color: #cfe6da; font-size: .72rem; text-align: right; }
+.adm-mix-wide { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; }
+.adm-warn { color: #f3e1b8; }
+.adm-link { display: inline-flex; align-items: center; gap: 5px; color: var(--cream); text-decoration: underline; text-underline-offset: 2px; }
+.adm-footnote { margin-top: 14px; }
+.adm-person { display: inline-flex; align-items: center; gap: 10px; }
+.adm-person .avatar { width: 32px; height: 32px; flex: 0 0 auto; font-size: .68rem; }
+.adm-person .status-pill { margin-left: 6px; }
+.adm-design-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.adm-design { padding: 16px; border: 1px solid var(--line); border-radius: 16px; display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; }
+.adm-design h3 { font-size: .92rem; }
+.adm-design p { color: #aebcb4; font-size: .76rem; }
+.adm-design strong { font: 700 1.3rem/1 var(--font-ui); text-align: right; }
+.adm-design strong small { display: block; margin-top: 4px; color: #aebcb4; font-size: .68rem; font-weight: 600; }
+@media (max-width: 640px) {
+  .adm-request-head { grid-template-columns: 38px minmax(0, 1fr); }
+  .adm-request-head .adm-status-control { grid-column: 2; justify-items: start; }
+  .adm-request-message, .adm-request-meta { margin-left: 0; }
+}
 #revenue, #requests, #projects, #orders, #customers, #templates { scroll-margin-top: 20px; }
 
 /* Hero: one headline number + the six-month chart */
