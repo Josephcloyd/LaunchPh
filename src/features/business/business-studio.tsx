@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Check, ExternalLink, Eye, LoaderCircle, MapPinned, Send, TriangleAlert } from "lucide-react";
+import { ArrowLeft, CalendarCheck, Check, ExternalLink, Eye, LoaderCircle, MapPinned, Send, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { saveBusinessDraft } from "@/app/studio/business/actions";
 import { BusinessSite } from "@/components/business-site";
@@ -9,7 +9,7 @@ import { buildGoogleMapsSearchUrl } from "@/lib/google-maps";
 import { useAutosave } from "@/lib/use-autosave";
 import type { BusinessDraft } from "@/types/business";
 
-type TextField = Exclude<keyof BusinessDraft, "projectId" | "projectName">;
+type TextField = Exclude<keyof BusinessDraft, "projectId" | "projectName" | "bookingEnabled">;
 
 export function BusinessStudio({ initialDraft }: { initialDraft: BusinessDraft }) {
   const [draft, setDraft] = useState(initialDraft);
@@ -65,6 +65,11 @@ export function BusinessStudio({ initialDraft }: { initialDraft: BusinessDraft }
           {field("facebookUrl", "Facebook page", { optional: true, maxLength: 500, type: "url", placeholder: "https://facebook.com/yourpage" })}
           {field("instagramUrl", "Instagram", { optional: true, maxLength: 500, type: "url", placeholder: "https://instagram.com/yourname" })}
           {field("tiktokUrl", "TikTok", { optional: true, maxLength: 500, type: "url", placeholder: "https://tiktok.com/@yourname" })}
+        </div></section>
+        <section className="editor-section"><h2>Bookings</h2><div className="form-stack">
+          <label className="consent-check"><input type="checkbox" checked={draft.bookingEnabled} onChange={event => setDraft(current => ({ ...current, bookingEnabled: event.target.checked }))}/><span>Let customers send booking requests from my site</span></label>
+          <p className="field-help">Each request is emailed to your account email and listed under Bookings, so you can call or message the customer to confirm.</p>
+          <Link className="maps-search-link" href={`/dashboard/projects/${draft.projectId}/bookings`}><CalendarCheck size={14}/> View booking requests</Link>
         </div></section>
       </aside>
       <main className="canvas-area"><BusinessSite {...draft}/></main>

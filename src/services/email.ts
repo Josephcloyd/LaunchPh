@@ -15,9 +15,10 @@ function getTransporter() {
   return transporter;
 }
 
-export type Email = { to: string; subject: string; lines: string[]; action?: { label: string; url: string } };
+/** `replyTo` lets the recipient answer someone else directly, e.g. a business owner replying to a customer. */
+export type Email = { to: string; subject: string; lines: string[]; action?: { label: string; url: string }; replyTo?: string };
 
-export async function sendEmail({ to, subject, lines, action }: Email) {
+export async function sendEmail({ to, subject, lines, action, replyTo }: Email) {
   const mailer = getTransporter();
   if (!mailer) {
     console.warn(`[email] SMTP is not configured; skipped "${subject}" to ${to}`);
@@ -29,7 +30,7 @@ export async function sendEmail({ to, subject, lines, action }: Email) {
     ${action ? `<p style="margin:20px 0"><a href="${escapeHtml(action.url)}" style="background:#344c43;color:#f8f7f3;padding:11px 18px;border-radius:999px;text-decoration:none;font-weight:bold">${escapeHtml(action.label)}</a></p>` : ""}
     <p style="margin:24px 0 0;color:#6b7a73">— GetLaunch PH</p></div>`;
   try {
-    await mailer.sendMail({ from: process.env.EMAIL_FROM || process.env.SMTP_USER, to, subject, text, html });
+    await mailer.sendMail({ from: process.env.EMAIL_FROM || process.env.SMTP_USER, to, subject, text, html, ...(replyTo && { replyTo }) });
     return true;
   } catch (error) {
     console.error(`[email] Failed to send "${subject}" to ${to}:`, error instanceof Error ? error.message : error);

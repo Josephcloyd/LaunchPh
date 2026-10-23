@@ -47,7 +47,7 @@ export async function buildSiteContent(client: SupabaseClient, projectId: string
   }
 
   if (project?.project_type === "business") {
-    const { data: profile } = await client.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links").eq("project_id", projectId).maybeSingle();
+    const { data: profile } = await client.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled").eq("project_id", projectId).maybeSingle();
     if (!profile) return { ok: false, message: "The business site hasn’t been saved yet." };
     const contact = profile.contact_details as StoredText, hours = profile.hours as StoredText, socials = profile.social_links as StoredText;
     const parsed = businessSiteSchema.safeParse({
@@ -64,6 +64,7 @@ export async function buildSiteContent(client: SupabaseClient, projectId: string
       facebookUrl: text(socials, "facebook"),
       instagramUrl: text(socials, "instagram"),
       tiktokUrl: text(socials, "tiktok"),
+      bookingEnabled: profile.booking_enabled === true,
     });
     if (!parsed.success) return { ok: false, message: `The business site is incomplete: ${parsed.error.issues[0]?.message ?? "check its details"}` };
     return { ok: true, content: parsed.data, slugParts: [parsed.data.businessName] };

@@ -1,11 +1,13 @@
-import { Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
+import { CalendarCheck, Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { MadeByCredit } from "@/components/made-by-credit";
 import { SocialIcon } from "@/components/social-icons";
+import { BookingForm } from "@/features/business/booking-form";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsSearchUrl } from "@/lib/google-maps";
 import { socialPlatformLabels, type SocialPlatform } from "@/lib/social-links";
 import type { BusinessSiteContent } from "@/types/business";
 
-export function BusinessSite(props: BusinessSiteContent) {
+/** `slug` is set on the live site, where the booking form sends requests; elsewhere it is a preview. */
+export function BusinessSite({ slug, ...props }: BusinessSiteContent & { slug?: string }) {
   const services = props.services.split("\n").map(line => line.trim()).filter(Boolean);
   const directionsUrl = props.mapUrl || (props.address ? buildGoogleMapsSearchUrl(props.address) : "");
   const phoneHref = props.phone ? `tel:${props.phone.replace(/[^\d+]/g, "")}` : "";
@@ -17,7 +19,8 @@ export function BusinessSite(props: BusinessSiteContent) {
       <h2>{props.businessName || "Your business name"}</h2>
       {props.tagline && <p className="business-tagline">{props.tagline}</p>}
       <div className="business-actions">
-        {phoneHref && <a className="business-btn primary" href={phoneHref}><Phone size={16} aria-hidden="true"/> Call us</a>}
+        {props.bookingEnabled && <a className="business-btn primary" href="#booking"><CalendarCheck size={16} aria-hidden="true"/> Book now</a>}
+        {phoneHref && <a className={props.bookingEnabled ? "business-btn" : "business-btn primary"} href={phoneHref}><Phone size={16} aria-hidden="true"/> Call us</a>}
         {directionsUrl && <a className="business-btn" href={directionsUrl} target="_blank" rel="noreferrer"><MapPin size={16} aria-hidden="true"/> Get directions</a>}
       </div>
       {socials.length > 0 && <ul className="business-socials" aria-label="Social media">{socials.map(([platform, url]) => <li key={platform}><a href={url} target="_blank" rel="noreferrer" aria-label={socialPlatformLabels[platform]}><SocialIcon platform={platform}/></a></li>)}</ul>}
@@ -26,6 +29,8 @@ export function BusinessSite(props: BusinessSiteContent) {
     {props.about && <section className="business-section"><h3>About us</h3><p className="business-about">{props.about}</p></section>}
 
     {services.length > 0 && <section className="business-section"><h3>What we offer</h3><ul className="business-services">{services.map((service, index) => <li key={`${index}-${service}`}>{service}</li>)}</ul></section>}
+
+    {props.bookingEnabled && <BookingForm slug={slug} businessName={props.businessName} services={services}/>}
 
     {(props.hours || props.phone || props.email || props.address) && <section className="business-section business-info">
       {props.hours && <div><h3><Clock size={16} aria-hidden="true"/> Opening hours</h3><p className="business-hours">{props.hours}</p></div>}

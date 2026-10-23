@@ -22,6 +22,7 @@ export const businessSiteSchema = z.object({
   facebookUrl: socialUrl("facebook"),
   instagramUrl: socialUrl("instagram"),
   tiktokUrl: socialUrl("tiktok"),
+  bookingEnabled: z.boolean().default(false),
 });
 
 export const businessDraftSchema = businessSiteSchema.extend({

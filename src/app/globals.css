@@ -873,6 +873,8 @@ html.effects-lite .glass { background: rgba(255, 255, 255, .12); }
 .rsvp-summary div:last-child { border-right: 0; }
 .rsvp-summary strong { font: 750 1.45rem/1 var(--font-ui); }
 .rsvp-summary span { color: #9fb0a7; font-size: .72rem; }
+@media (min-width: 761px) { .booking-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.guest-response-date a, .provider-notice p a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .guest-add-card { margin-bottom: 20px; padding: 22px 24px; border: 1px solid rgba(255,255,255,.11); border-radius: 16px; background: rgba(35,60,51,.5); }
 .guest-add-card > div:first-child h2 { font-size: 1rem; }
 .guest-add-card > div:first-child p { margin-top: 4px; color: #9fb0a7; font-size: .76rem; }
@@ -1095,6 +1097,20 @@ html.effects-lite .glass { background: rgba(255, 255, 255, .12); }
 .business-map-link { margin-top: 12px; display: inline-flex; align-items: center; gap: 5px; color: #2c463c; font: 600 .84rem/1 var(--font-ui); }
 .business-footer { padding: 22px clamp(22px, 6vw, 60px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; color: #7a8681; font-size: .8rem; }
 .business-credit { color: #66766f; font: 600 .75rem/1 var(--font-ui); }
+.business-booking { background: #f3f4ee; }
+.business-booking-intro { margin-bottom: 20px; color: #56625d; }
+.business-booking-form { display: grid; gap: 14px; }
+.business-booking-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.business-booking-form label { display: grid; gap: 6px; color: #2c463c; font: 650 .8rem/1.3 var(--font-ui); }
+.business-booking-form label em { color: #7a8681; font-style: normal; font-weight: 500; }
+.business-booking-form :is(input, select, textarea) { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #d6dbd3; border-radius: 10px; color: #2a3430; background: #fff; font: 400 .95rem/1.4 var(--font-copy); }
+.business-booking-form textarea { resize: vertical; }
+.business-booking-form :is(input, select, textarea):focus-visible { outline: 2px solid #2c463c; outline-offset: 1px; border-color: transparent; }
+.business-booking-form .business-btn.primary { justify-self: start; border-color: #2c463c; background: #2c463c; color: #f6f5ef; cursor: pointer; }
+.business-booking-form .business-btn.primary:hover { background: #213a31; }
+.business-booking-form .business-btn:disabled { opacity: .6; cursor: wait; }
+.business-booking-error { padding: 10px 12px; border-radius: 10px; color: #8a3b2c; background: #f8e5df; font-size: .88rem; }
+.business-booking-done { padding: 18px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #24493b; background: #dfeee5; }
 .published-business-page { min-height: 100vh; padding: 30px 16px; display: grid; justify-items: center; align-content: start; background: #e9ebe5; }
 .published-business-page .business-site { box-shadow: 0 12px 40px rgba(10,25,20,.12); }
 

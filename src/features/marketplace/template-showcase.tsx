@@ -48,6 +48,7 @@ const businessSample: BusinessSiteContent = {
   facebookUrl: "https://www.facebook.com/",
   instagramUrl: "https://www.instagram.com/",
   tiktokUrl: "",
+  bookingEnabled: true,
 };
 
 export const templates = [

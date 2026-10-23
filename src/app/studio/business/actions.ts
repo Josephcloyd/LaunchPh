@@ -37,6 +37,7 @@ export async function saveBusinessDraft(input: unknown): Promise<BusinessDraftSa
     contact_details: { phone: site.phone, email: site.email },
     hours: { text: site.hours },
     social_links: { facebook: site.facebookUrl, instagram: site.instagramUrl, tiktok: site.tiktokUrl },
+    booking_enabled: site.bookingEnabled,
     updated_at: savedAt,
   }, { onConflict: "project_id" });
 

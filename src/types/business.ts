@@ -12,6 +12,7 @@ export type BusinessSiteContent = {
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
+  bookingEnabled: boolean;
 };
 
 export type BusinessDraft = BusinessSiteContent & {

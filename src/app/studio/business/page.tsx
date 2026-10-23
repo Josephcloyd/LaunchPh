@@ -16,7 +16,7 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
   const { data: project } = await supabase.from("projects").select("id, name").eq("id", params.project).eq("owner_id", user.id).eq("project_type", "business").maybeSingle();
   if (!project) redirect("/dashboard/projects");
 
-  const { data: profile } = await supabase.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links").eq("project_id", project.id).maybeSingle();
+  const { data: profile } = await supabase.from("business_profiles").select("business_name, business_type, tagline, about, services, address, map_url, contact_details, hours, social_links, booking_enabled").eq("project_id", project.id).maybeSingle();
   const contact = profile?.contact_details as StoredText;
   const hours = profile?.hours as StoredText;
   const socials = profile?.social_links as StoredText;
@@ -38,6 +38,7 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
     facebookUrl: text(socials, "facebook"),
     instagramUrl: text(socials, "instagram"),
     tiktokUrl: text(socials, "tiktok"),
+    bookingEnabled: profile.booking_enabled === true,
   } : {
     projectId: project.id,
     projectName: project.name,
@@ -54,5 +55,6 @@ export default async function BusinessStudioPage({ searchParams }: PageProps<"/s
     facebookUrl: "",
     instagramUrl: "",
     tiktokUrl: "",
+    bookingEnabled: false,
   }}/>;
 }

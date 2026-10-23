@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: PageProps<"/site/[slug]">): P
 }
 
 export default async function PublishedBusinessSitePage({ params }: PageProps<"/site/[slug]">) {
-  const site = await getBusinessSite((await params).slug);
+  const { slug } = await params;
+  const site = await getBusinessSite(slug);
   if (!site) notFound();
-  return <main className="published-business-page"><BusinessSite {...site}/></main>;
+  return <main className="published-business-page"><BusinessSite {...site} slug={slug}/></main>;
 }
