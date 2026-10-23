@@ -113,6 +113,7 @@ Goal: a separate, backed-up production environment where sign-up and password re
   13. `202610230001_account_deletion_foreign_keys.sql`
   14. `202610230002_rate_limits.sql`
   15. `202610230003_manual_payments.sql`
+  16. `202610230004_policy_acceptances.sql`
 
   The development database was found (2026-10-23) to be missing 5 of these, so after applying them to production, compare its tables and functions against the list above before going further.
 - [ ] 🔴 **Dev + Owner** — Set up custom SMTP in Supabase Auth (e.g. Resend, Postmark, or Amazon SES) with a verified sending domain. Supabase's default sender is limited to a few emails per hour and is meant for testing only.
@@ -239,6 +240,7 @@ Goal: meet legal obligations and give customers confidence.
   - business plans: prepaid months aren't refundable; duplicate, extra, or mistaken payments always are
   - customers must be 18+, or younger with a parent or guardian
   - contact through the Facebook page and in-app Support (no email yet)
+- [x] Required, unticked "I agree" checkboxes at sign-up (Terms + Privacy) and checkout (Terms + Refund Policy), recorded in `policy_acceptances` with the time, place, policy version, and order (2026-10-23). Magic links no longer create accounts, so no one skips the sign-up agreement. When a policy changes, update `POLICY_VERSION` in `src/lib/legal.ts`.
 - [ ] 🔴 **Owner** — Read all three policies and confirm they match how you'll actually run things. They're a plain-language starting point, not legal advice; get them reviewed before public launch.
 - [ ] **Owner** — Add a contact email to `LegalContact` in `src/components/legal-page.tsx` when you have one. The Data Privacy Act expects a reachable contact for privacy requests.
 - [ ] **Dev** — Admin action to refund an order: mark it refunded and unpublish the invitation (today it's done by hand in Supabase).

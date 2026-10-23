@@ -44,6 +44,7 @@ export function ManualCheckout({ productKey, project, accounts, initialReferralC
   const [referralMessage, setReferralMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [customerReference, setCustomerReference] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const plan = isBusiness ? businessPlans.find(entry => entry.slug === planSlug) ?? businessPlans[0] : null;
@@ -66,7 +67,7 @@ export function ManualCheckout({ productKey, project, accounts, initialReferralC
     if (!method) return;
     setMessage(null);
     startTransition(async () => {
-      const result = await placeOrder({ projectId: project.id, plan: planSlug, method, referralCode });
+      const result = await placeOrder({ projectId: project.id, plan: planSlug, method, referralCode, acceptedPolicies: agreed });
       if (!result.ok) { setMessage(result.message); return; }
       setStage({ kind: "pay", orderId: result.orderId, reference: result.reference, totalCentavos: result.totalCentavos });
     });
@@ -132,8 +133,8 @@ export function ManualCheckout({ productKey, project, accounts, initialReferralC
           })}</div>}
         </div>
         {message && <div className="notice error-notice" role="alert">{message}</div>}
-        <button className="btn btn-primary" type="button" onClick={order} disabled={pending || !method}>{pending ? "Creating your order…" : `Continue · ${peso(price - discount)}`}</button>
-        <p className="fine">By continuing, you agree to our <Link href="/terms">Terms of Service</Link> and <Link href="/refunds">Refund Policy</Link>{isBusiness ? ". Prepaid months aren’t refundable." : ". Invitations can be refunded within 7 days."}</p>
+        <label className="consent-check"><input type="checkbox" checked={agreed} onChange={event => setAgreed(event.target.checked)}/><span>I agree to the <Link href="/terms" target="_blank">Terms of Service</Link> and <Link href="/refunds" target="_blank">Refund Policy</Link>.{isBusiness ? " Prepaid months aren’t refundable." : " Invitations can be refunded within 7 days."}</span></label>
+        <button className="btn btn-primary" type="button" onClick={order} disabled={pending || !method || !agreed}>{pending ? "Creating your order…" : `Continue · ${peso(price - discount)}`}</button>
         <Link className="fine" href={product.returnHref}>{product.returnLabel}</Link>
       </div>}
     </section>

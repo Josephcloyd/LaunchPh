@@ -641,6 +641,10 @@ html.effects-lite .glass { background: rgba(255, 255, 255, .12); }
 .auth-card .input { min-height: 43px; }
 .auth-card .auth-name-grid { gap: 10px; }
 .auth-card .divider { margin: 13px 0; }
+/* Required "I agree" checkbox at sign-up and checkout. */
+.consent-check { display: flex; align-items: flex-start; gap: 9px; color: #d4ddd8; font-size: .8rem; line-height: 1.45; cursor: pointer; }
+.consent-check input { width: 17px; height: 17px; margin: 1px 0 0; flex: 0 0 auto; accent-color: var(--sage-light); cursor: pointer; }
+.consent-check a { color: var(--cream); text-decoration: underline; text-underline-offset: 2px; }
 /* A quiet Turnstile is hidden unless a check is needed; cancel the empty row's gap. */
 .turnstile-field.quiet { min-height: 0; margin-bottom: -12px; }
 .order-note { display: block; margin-top: 6px; color: #f4cec5; font-size: .76rem; }

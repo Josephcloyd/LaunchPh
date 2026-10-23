@@ -1,3 +1,4 @@
+import { POLICY_VERSION } from "@/lib/legal";
 import { getSupabaseBrowserClient } from "@/services/supabase-browser";
 
 // `captchaToken` is a one-time Turnstile token. Supabase requires it on these calls once
@@ -14,15 +15,17 @@ export const authService = {
     const client = getSupabaseBrowserClient();
     if (!client) return { developmentMode: true as const, needsEmailVerification: false };
     const fullName = [firstName, middleName, lastName].map(part => part.trim()).filter(Boolean).join(" ");
-    const { data, error } = await client.auth.signUp({ email, password, options: { captchaToken, data: { first_name: firstName.trim(), middle_name: middleName.trim() || null, last_name: lastName.trim(), full_name: fullName, timezone: "Asia/Manila" } } });
+    // policy_version records that the customer ticked "I agree" (see policy_acceptances).
+    const { data, error } = await client.auth.signUp({ email, password, options: { captchaToken, data: { first_name: firstName.trim(), middle_name: middleName.trim() || null, last_name: lastName.trim(), full_name: fullName, timezone: "Asia/Manila", policy_version: POLICY_VERSION } } });
     if (error) throw error;
     return { developmentMode: false as const, needsEmailVerification: !data.session };
   },
   async sendMagicLink(email: string, captchaToken?: string) {
     const client = getSupabaseBrowserClient();
     if (!client) throw new Error("Supabase is not configured.");
-    const { error } = await client.auth.signInWithOtp({ email, options: { captchaToken, emailRedirectTo: `${window.location.origin}/dashboard` } });
-    if (error) throw error;
+    // Existing accounts only: new customers register, where they agree to the policies.
+    const { error } = await client.auth.signInWithOtp({ email, options: { captchaToken, shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` } });
+    if (error) throw /signups not allowed|user not found/i.test(error.message) ? new Error("There’s no account with that email yet. Register first, then use the magic link next time.") : error;
   },
   async sendPasswordReset(email: string, captchaToken?: string) {
     const client = getSupabaseBrowserClient();

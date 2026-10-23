@@ -2,10 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { POLICY_UPDATED } from "@/lib/legal";
 import { GETLAUNCH_FACEBOOK_URL } from "@/lib/social-links";
 
-// Shown on every policy. Update when any policy changes in a way customers should know about.
-export const LEGAL_UPDATED = "October 23, 2026";
 
 const policies = [
   { href: "/terms", label: "Terms of Service" },
@@ -21,7 +20,7 @@ export function LegalPage({ title, summary, current, children }: { title: string
         <p className="eyebrow">Policies</p>
         <h1>{title}</h1>
         <p>{summary}</p>
-        <p className="fine">Last updated {LEGAL_UPDATED}</p>
+        <p className="fine">Last updated {POLICY_UPDATED}</p>
         <nav className="legal-nav" aria-label="Policies">{policies.map(policy => <Link key={policy.href} href={policy.href} aria-current={policy.href === current ? "page" : undefined}>{policy.label}</Link>)}</nav>
       </header>
       <article className="legal-body">{children}</article>

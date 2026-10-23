@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { POLICY_VERSION } from "@/lib/legal";
 import { configuredPaymentAccounts } from "@/lib/payment-accounts";
 import { normalizeReferralCode, referralMessages, type ReferralCheckResult } from "@/lib/referral";
 import { withinRateLimit } from "@/services/abuse-protection";
@@ -28,6 +29,7 @@ const orderSchema = z.object({
   plan: z.string().regex(/^[a-z0-9-]{3,40}$/),
   method: paymentMethod,
   referralCode: z.string().max(12).nullable(),
+  acceptedPolicies: z.literal(true),
 });
 
 export type PlaceOrderResult = { ok: true; orderId: string; reference: string; totalCentavos: number } | { ok: false; message: string };
@@ -37,7 +39,7 @@ const orderMessages = ["Project not found.", "Choose a payment method.", "That p
 
 export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
   const parsed = orderSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, message: "Choose a plan and a payment method." };
+  if (!parsed.success) return { ok: false, message: (input as { acceptedPolicies?: unknown } | null)?.acceptedPolicies !== true ? "Please tick the box to agree to the Terms of Service and Refund Policy." : "Choose a plan and a payment method." };
   const { user } = await requireUser();
   if (!configuredPaymentAccounts().some(account => account.method === parsed.data.method)) return { ok: false, message: "That payment method isn’t available yet." };
   if (!(await withinRateLimit("order", 20, 3600))) return { ok: false, message: "Too many orders in a short time. Please try again later." };
@@ -51,6 +53,9 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
     referral: parsed.data.referralCode,
   }).single<{ order_id: string; reference: string; total_centavos: number }>();
   if (error || !data) return { ok: false, message: error && orderMessages.includes(error.message) ? error.message : "Your order couldn’t be created. Please try again." };
+  // Evidence that the customer ticked "I agree" for this order, with the policy version.
+  const { error: consentError } = await createSupabaseAdminClient().from("policy_acceptances").insert({ user_id: user.id, context: "checkout", policy_version: POLICY_VERSION, order_id: data.order_id });
+  if (consentError) console.error("[checkout] Couldn't record policy acceptance:", consentError.message);
   // No revalidatePath here or below: it would re-render the whole checkout page before the
   // action finishes, leaving the next button disabled. Billing and admin render fresh anyway.
   return { ok: true, orderId: data.order_id, reference: data.reference, totalCentavos: data.total_centavos };
