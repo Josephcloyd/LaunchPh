@@ -112,6 +112,7 @@ Goal: a separate, backed-up production environment where sign-up and password re
   12. `202610220002_function_grants_and_policy_repair.sql`
   13. `202610230001_account_deletion_foreign_keys.sql`
   14. `202610230002_rate_limits.sql`
+  15. `202610230003_manual_payments.sql`
 
   The development database was found (2026-10-23) to be missing 5 of these, so after applying them to production, compare its tables and functions against the list above before going further.
 - [ ] 🔴 **Dev + Owner** — Set up custom SMTP in Supabase Auth (e.g. Resend, Postmark, or Amazon SES) with a verified sending domain. Supabase's default sender is limited to a few emails per hour and is meant for testing only.
@@ -129,28 +130,24 @@ Goal: a separate, backed-up production environment where sign-up and password re
 
 Goal: take real money safely, and unlock exactly what was paid for.
 
-- [ ] 🔴 **Owner** — Choose a Philippine payment provider that supports what checkout promises: cards, GCash, Maya, and bank transfer (e.g. PayMongo, Xendit, Maya Business). Complete its business verification.
-- [ ] 🔴 **Owner** — Register the business (DTI/SEC and BIR) as the provider requires, and decide how official receipts or invoices are issued.
-- [ ] 🔴 **Dev** — Create orders on the server using prices from the database. Never trust an amount or discount sent by the browser.
-- [ ] 🔴 **Dev** — Apply the ₱50 referral discount on the server: call `check_referral_code` again at order time, allow it once per new customer, and record it in `orders.referral_code` / `discount_centavos`.
-- [ ] 🔴 **Dev** — Verify webhook signatures with `PAYMENT_WEBHOOK_SECRET`. Process each event once, even if the provider retries it.
-- [ ] 🔴 **Dev** — Mark the order paid and unlock publishing only from a verified webhook, never from the browser's success page.
-- [ ] 🔴 **Dev** — Business site ₱299/month:
-  - recurring billing in `subscriptions`
-  - renewal
-  - a failed-payment grace period, after which the site is automatically unpublished
-  - customer cancellation
-- [ ] **Owner + Dev** — Decide how the Job Application Bundle (₱499) is paid. Today `/job-application-bundle` only collects an inquiry; there's no payment step.
-- [ ] **Dev** — Handle failed, expired, cancelled, refunded, and partially refunded payments, and show each correctly in `/dashboard/billing` and `/admin`.
-- [ ] **Dev** — Test:
-  - double-clicking pay
-  - retried and delayed webhooks
-  - a forged webhook
-  - the wrong amount
-  - the wrong currency
-- [ ] **Owner** — Write the refund policy (Phase 5), then do one live low-value payment and refund together.
+**Decision (2026-10-23): start with manual payments.** Customers pay into your GCash, Maya, or bank account, submit their payment reference, and an admin confirms it in `/admin`. No business registration or payment provider is needed to start; a provider comes later when volume justifies it. Business sites are prepaid for 1, 3, 6, or 12 months (12 months = ₱2,990), with no automatic charges.
 
-**Exit check:** One sandbox payment unlocks exactly one project; a failed or forged payment unlocks nothing; the referral discount can't be used twice.
+Built in `202610230003_manual_payments.sql`, `/checkout`, `/admin` (Payments to confirm), and `/api/cron/expiry-reminders`:
+- [x] Orders are created and priced by the database (`create_manual_order`), so the browser can't change the amount. The plan must match the project (a debut can't be bought at the wedding price), and an invitation can't be bought twice.
+- [x] The ₱50 referral discount is checked again at order time: someone else's code, first purchase only.
+- [x] Only an admin's confirmation marks an order paid and publishes the site (`confirm_manual_order`, all in one transaction). A GCash/Maya/bank reference can confirm only one order.
+- [x] Business sites: renewals extend from the current end date (or from today if it lapsed); the site stays public 7 days past the paid period, then goes offline on its own and comes back at the same address after renewal.
+- [x] Reminders: a dashboard notice from 7 days before the end, and emails 7 days before, 1 day before, and when the site goes offline.
+- [x] Saved edits to a live site update the public page.
+- [ ] **Owner** — Put your GCash, Maya, and bank details in the `PAYMENT_*` environment variables (optional QR images in `public/payments/`).
+- [ ] **Owner** — Set up email: a Gmail account with an app password works to start (`SMTP_*`, `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`).
+- [ ] **Dev** — Schedule `/api/cron/expiry-reminders` once a day with `CRON_SECRET` once the host is chosen (e.g. Vercel Cron).
+- [ ] **Owner** — Check every payment in your GCash, Maya, or bank app before clicking Confirm. Never trust a screenshot.
+- [ ] **Owner + Dev** — Decide how the Job Application Bundle (₱499) is paid. Today `/job-application-bundle` only collects an inquiry; there's no payment step.
+- [ ] **Owner** — Write the refund policy (Phase 5). Refunds are manual for now: send the money back and mark the order refunded.
+- [ ] **Owner** — When sales are steady, register the business (DTI, BIR) and decide how official receipts or invoices are issued; then consider a payment provider (PayMongo, Xendit, Maya Business) for automatic confirmation. That brings back webhook signature checks and processing each event once.
+
+**Exit check:** A test order paid by GCash publishes exactly one project after you confirm it; a rejected or reused reference unlocks nothing; the referral discount can't be used twice; an expired business site goes offline after the grace period and returns after renewal.
 
 ---
 

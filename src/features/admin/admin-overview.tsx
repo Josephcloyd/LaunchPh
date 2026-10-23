@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, BriefcaseBusiness, ExternalLink, FileStack, Globe, Inbox, LifeBuoy, Mail, Minus, Users } from "lucide-react";
 import type { AdminOverviewData, InboxItem } from "@/features/admin/admin-data";
+import { PaymentReview } from "@/features/admin/payment-review";
 import { RefreshButton } from "@/features/admin/refresh-button";
 
 const peso = (centavos: number) => `₱${(centavos / 100).toLocaleString("en-PH", { maximumFractionDigits: 0 })}`;
@@ -68,6 +69,8 @@ export function AdminOverview({ data, adminName }: { data: AdminOverviewData; ad
 
     {data.failed.length > 0 && <div className="adm-alert" role="status"><AlertTriangle size={16}/><span>Couldn’t load {data.failed.join(", ")}. Those sections may be incomplete. Check that every Supabase migration has been applied.</span></div>}
 
+    <PaymentReview payments={data.pendingPayments}/>
+
     <section className="adm-hero glass" id="revenue" aria-labelledby="revenue-title">
       <div className="adm-hero-figure">
         <p className="adm-label" id="revenue-title">Revenue this month</p>
@@ -134,7 +137,7 @@ export function AdminOverview({ data, adminName }: { data: AdminOverviewData; ad
     <section className="content-grid adm-row">
       <div className="panel glass" id="orders">
         <div className="panel-head"><h2>Recent orders</h2></div>
-        {data.recentOrders.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>No orders yet. They’ll show up here once the payment provider is connected and customers check out.</p></div> :
+        {data.recentOrders.length === 0 ? <div className="adm-empty"><Inbox size={22}/><p>No orders yet. They’ll show up here once customers check out.</p></div> :
           <div className="table-wrap"><table className="data-table"><thead><tr><th>Reference</th><th>Customer</th><th>Date</th><th>Status</th><th className="num">Total</th></tr></thead><tbody>{data.recentOrders.map(order => <tr key={order.id}><td><strong>{order.reference}</strong></td><td>{order.customer}</td><td>{shortDate(order.createdAt)}</td><td><span className={`status-pill ${order.status}`}>{order.status.replace("_", " ")}</span></td><td className="num">{peso(order.totalCentavos)}</td></tr>)}</tbody></table></div>}
       </div>
       <aside className="panel glass" id="customers">

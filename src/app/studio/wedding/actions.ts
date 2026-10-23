@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { formatPersonName } from "@/lib/person-name";
 import { weddingDraftSchema } from "@/lib/wedding-schema";
+import { refreshLiveContent } from "@/services/site-content";
 import { requireUser } from "@/services/supabase-server";
 import type { WeddingDraftSaveResult } from "@/types/wedding";
 
@@ -63,6 +64,8 @@ export async function saveWeddingDraft(input: unknown): Promise<WeddingDraftSave
   if (error) return { ok: false, message: "Your changes could not be saved. Please try again." };
 
   await supabase.from("projects").update({ updated_at: savedAt }).eq("id", project.id).eq("owner_id", user.id);
+  // Once paid and live, saved changes appear on the public page right away.
+  await refreshLiveContent(supabase, project.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/projects");
   return { ok: true, savedAt };

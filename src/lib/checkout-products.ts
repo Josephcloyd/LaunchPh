@@ -24,10 +24,10 @@ export const checkoutProducts = {
   "business-site": {
     name: "Business Website",
     description: "One-page website for your business",
-    lineItem: "Business website (monthly)",
+    lineItem: "Business website",
     price: 299,
     interval: "month",
-    details: "Includes your business page with contact details, opening hours, an embedded Google Map, social media links, hosting, HTTPS, and updates any time. Cancel any time.",
+    details: "Includes your business page with contact details, opening hours, an embedded Google Map, social media links, hosting, HTTPS, and updates any time. Prepaid: choose how many months, and we’ll remind you before it ends.",
     returnHref: "/dashboard/projects",
     returnLabel: "Return to my projects",
     pendingMessage: "Secure checkout is being connected. No payment has been collected and publishing remains locked.",
@@ -46,6 +46,24 @@ export const checkoutProducts = {
 } as const;
 
 export type CheckoutProductKey = keyof typeof checkoutProducts;
+
+// Prices shown at checkout. Orders are always priced by the database (pricing_plans, seeded in
+// 202610230003_manual_payments.sql), so keep these in sync with it.
+export const businessPlans = [
+  { slug: "business-site-1m", months: 1, price: 299, note: null },
+  { slug: "business-site-3m", months: 3, price: 897, note: null },
+  { slug: "business-site-6m", months: 6, price: 1794, note: null },
+  { slug: "business-site-12m", months: 12, price: 2990, note: "2 months free" },
+] as const;
+export type BusinessPlanSlug = (typeof businessPlans)[number]["slug"];
+
+/** Products bought for a specific project, paid by GCash, Maya, or bank transfer. */
+export const projectProducts = ["wedding-invitation", "debut-invitation", "business-site"] as const;
+export type ProjectProductKey = (typeof projectProducts)[number];
+export const isProjectProduct = (key: CheckoutProductKey): key is ProjectProductKey => (projectProducts as readonly string[]).includes(key);
+
+/** Business sites stay online this many days after the paid period ends. */
+export const BUSINESS_GRACE_DAYS = 7;
 
 export function resolveCheckoutProduct(value: string | string[] | undefined): CheckoutProductKey {
   return typeof value === "string" && Object.hasOwn(checkoutProducts, value) ? value as CheckoutProductKey : "wedding-invitation";

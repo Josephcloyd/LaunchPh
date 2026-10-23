@@ -96,11 +96,15 @@ export async function setProjectPublished(projectId: string, publish: boolean): 
   const { supabase, user } = await requireUser();
   const { data: ownedProject } = await supabase.from("projects").select("id, project_type").eq("id", projectId).eq("owner_id", user.id).maybeSingle();
   if (!ownedProject) return { ok: false, message: "Project not found." };
-  if (publish && ownedProject.project_type === "wedding") {
-    return { ok: false, message: "Open the invitation editor to save your invitation and continue to secure checkout." };
-  }
-  if (publish && ownedProject.project_type === "business") {
-    return { ok: false, message: "Open the business site editor and start your ₱299/month plan to publish." };
+  if (publish && (ownedProject.project_type === "wedding" || ownedProject.project_type === "business")) {
+    // Paid projects go live again through publish_project(), which checks the payment first.
+    const { data: published } = await supabase.rpc("publish_project", { target_project_id: projectId });
+    if (published !== true) {
+      return { ok: false, message: ownedProject.project_type === "wedding" ? "Open the invitation editor and continue to checkout to publish." : "Open the business site editor and choose a plan to publish." };
+    }
+    await recordActivity(user.id, "project_published", "Published a project.", projectId);
+    revalidatePath("/dashboard"); revalidatePath("/dashboard/projects");
+    return { ok: true, message: "Project published." };
   }
   const status = publish ? "published" : "draft";
   const { data, error } = await supabase.from("projects").update({ status, updated_at: new Date().toISOString() }).eq("id", projectId).eq("owner_id", user.id).select("id, name").maybeSingle();

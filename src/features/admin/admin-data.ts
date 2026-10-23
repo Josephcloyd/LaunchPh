@@ -14,8 +14,11 @@ export type RecentOrder = { id: string; reference: string; customer: string; sta
 export type RecentCustomer = { id: string; name: string; createdAt: string; projects: number };
 export type TemplateRow = { id: string; name: string; category: string; status: string; priceCentavos: number | null; updatedAt: string };
 export type ProjectMix = { label: string; count: number; published: number };
+export type PendingPayment = { id: string; reference: string; customer: string; item: string; projectName: string; method: string; customerReference: string; totalCentavos: number; submittedAt: string };
 
 export type AdminOverviewData = {
+  /** Customers' GCash, Maya, and bank payments waiting for an admin to check and confirm. */
+  pendingPayments: PendingPayment[];
   revenue: MonthRevenue[];
   paidOrdersThisMonth: number;
   customers: { total: number; newThisMonth: number };
@@ -63,7 +66,8 @@ export async function loadAdminOverview(supabase: Supabase): Promise<AdminOvervi
   const months = lastMonths(now);
   const thisMonthStart = months[months.length - 1].start.toISOString();
 
-  const [paidOrders, customerTotal, customerNew, projects, weddingEvents, websiteInquiries, jobInquiries, tickets, orders, profiles, templates] = await Promise.all([
+  const [pending, paidOrders, customerTotal, customerNew, projects, weddingEvents, websiteInquiries, jobInquiries, tickets, orders, profiles, templates] = await Promise.all([
+    supabase.from("orders").select("id, reference, total_centavos, payment_method, customer_reference, submitted_at, profiles!orders_user_id_fkey(full_name, first_name, last_name), order_items(description, projects(name))").eq("status", "pending").not("submitted_at", "is", null).order("submitted_at", { ascending: true }).limit(25),
     supabase.from("orders").select("total_centavos, paid_at").in("status", PAID_STATUSES).gte("paid_at", months[0].start.toISOString()),
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", thisMonthStart),
@@ -72,14 +76,14 @@ export async function loadAdminOverview(supabase: Supabase): Promise<AdminOvervi
     supabase.from("website_inquiries").select("id, full_name, email, business_name, website_type, status, created_at").in("status", ["new", "contacted", "scheduled"]).order("created_at", { ascending: false }).limit(10),
     supabase.from("job_application_inquiries").select("id, first_name, last_name, email, target_role, status, created_at").in("status", ["new", "reviewing", "contacted"]).order("created_at", { ascending: false }).limit(10),
     supabase.from("support_tickets").select("id, subject, status, created_at, profiles!support_tickets_user_id_fkey(full_name, first_name, last_name)").in("status", ["open", "pending"]).order("created_at", { ascending: false }).limit(10),
-    supabase.from("orders").select("id, reference, status, total_centavos, created_at, profiles(full_name, first_name, last_name)").order("created_at", { ascending: false }).limit(8),
+    supabase.from("orders").select("id, reference, status, total_centavos, created_at, profiles!orders_user_id_fkey(full_name, first_name, last_name)").order("created_at", { ascending: false }).limit(8),
     supabase.from("profiles").select("id, full_name, first_name, last_name, created_at, projects(count)").order("created_at", { ascending: false }).limit(6),
     supabase.from("templates").select("id, name, category, status, price_centavos, updated_at").order("updated_at", { ascending: false }).limit(10),
   ]);
 
   const failed: string[] = [];
   const check = (label: string, result: { error: unknown }) => { if (result.error) failed.push(label); };
-  check("revenue", paidOrders); check("customers", customerTotal); check("projects", projects);
+  check("payments to confirm", pending); check("revenue", paidOrders); check("customers", customerTotal); check("projects", projects);
   check("website inquiries", websiteInquiries); check("job application inquiries", jobInquiries);
   check("support tickets", tickets); check("orders", orders); check("templates", templates);
 
@@ -111,6 +115,10 @@ export async function loadAdminOverview(supabase: Supabase): Promise<AdminOvervi
 
   const allProjects = projects.data ?? [];
   return {
+    pendingPayments: (pending.data ?? []).map(row => {
+      const item = one(row.order_items as { description: string; projects: { name: string } | { name: string }[] | null }[] | null);
+      return { id: row.id, reference: row.reference, customer: fullName(one(row.profiles)), item: item?.description ?? "Order", projectName: one(item?.projects)?.name ?? "", method: row.payment_method ?? "", customerReference: row.customer_reference ?? "", totalCentavos: row.total_centavos, submittedAt: row.submitted_at as string };
+    }),
     revenue,
     paidOrdersThisMonth: revenue[revenue.length - 1].orders,
     customers: { total: customerTotal.count ?? 0, newThisMonth: customerNew.count ?? 0 },
